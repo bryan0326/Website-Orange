@@ -81,12 +81,12 @@
                 <!--<li><a href="right-sidebar.html" class="up">待思考</a></li>-->
                 <li><a href="feedback_front.php" class="up">意見回饋</a></li>
                 <?php
-                // 在按钮的地方添加以下代码
+                // 按鈕
                 if (isset($_SESSION["login_session"]) && $_SESSION["login_session"] === true) {
-                    // 用户已登录，显示头像和链接到 user.php
+                    // 登錄後跳到 user.php
                     echo '<li><a href="users.php"><img src="images/orange.png" alt="User Avatar" style="width: 40px; height: 40px;"></a></li>';
                 } else {
-                    // 用户未登录，显示登录按钮
+                    // 沒登錄的話顯示登錄按鈕
                     echo '<li><a href="login_front.php" class="button special">Login</a></li>';
                 }
                 ?>
@@ -171,7 +171,7 @@
                 color: #629DD1;
             }
 
-            /* 統計人數樣式 */
+            /* 統計人數 */
             #header nav>ul>li .count:hover::after {
                 width: 0;
             }
@@ -180,12 +180,11 @@
                 color: #555f66;
             }
 
-            /* Login樣式 */
+            /* Login */
             #header nav>ul>li a.button:hover::after {
                 width: 0;
             }
 
-            /* 在 section 中应用样式 */
             #searchInput {
                 background-color: #ffffff;
                 padding: 20px;
@@ -269,13 +268,12 @@
                 margin-right: 5px;
             }
 
-            /* 新增樣式 */
             .coursecontainer>div>div .additional-style {
                 color: red;
                 font-weight: bold;
             }
 
-            /* 新增樣式 - Learn More 按鈕 */
+            /*  Learn More 按鈕 */
             .coursecontainer>div>div .show-full-content,
             .coursecontainer>div>div .show-partial-content {
                 background-color: #c7a4ff;
@@ -440,9 +438,9 @@
                     <form method="GET">
                         <section>
                             <h2 style="text-align: center; margin-top: 80px">以課程名稱搜尋</h2>
-                            <!-- 创建一个输入框 -->
+                            <!-- 輸入框 -->
                             <input type="text" id="searchInput" name="course" placeholder="例: 網際網路服務">
-                            <!-- 创建一个搜索按钮 -->
+                            <!-- 尋找按鈕 -->
                             <button type="submit" id="search">搜尋</button>
                         </section>
                     </form>
@@ -450,9 +448,9 @@
                         <section>
                             <br>
                             <h2 style="text-align: center; margin-top: 20px">以老師搜尋</h2>
-                            <!-- 创建一个输入框 -->
+                            <!-- 輸入框 -->
                             <input type="text" id="searchInput" name="teacher" placeholder="例: 許政穆">
-                            <!-- 创建一个搜索按钮 -->
+                            <!-- 尋找按鈕 -->
                             <button type="submit" id="search">搜尋</button>
 
                             <!--<a href="#" class="image fit"><img src="images/pic03.jpg" alt="" width="818" height="340"></a>-->
@@ -757,5 +755,6 @@
     </script>
 
 </body>
+
 
 </html>
