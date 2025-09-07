@@ -6,31 +6,51 @@
 </head>
 <body>
 <?php
-$servername = "localhost";
-$username = "id21704570_orange";
-$password = "Orange7749.";
-$dbname = "id21704570_orange";
+// 取得 Supabase 環境變數
+$supabase_url = getenv('SUPABASE_URL');
+$supabase_key = getenv('SUPABASE_ANON_KEY');
 
-$conn = new mysqli($servername, $username, $password, $dbname);
+// 確認表單資料存在
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $name = $_POST['name'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $message = $_POST['message'] ?? '';
+    $rating = intval($_POST['rating'] ?? 0);
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+    // 建立要傳給 Supabase 的資料
+    $data = [
+        "name" => $name,
+        "email" => $email,
+        "message" => $message,
+        "rating" => $rating
+    ];
 
-$name = $_POST['name'];
-$email = $_POST['email'];
-$message = $_POST['message'];
-$rating = $_POST['rating'];
+    // 初始化 cURL
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $supabase_url . "/rest/v1/feedback");
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "apikey: $supabase_key",
+        "Authorization: Bearer $supabase_key",
+        "Content-Type: application/json",
+        "Prefer: return=representation"
+    ]);
 
-$sql = "INSERT INTO feedback (name, email, message, rating) VALUES ('$name', '$email', '$message', '$rating')";
+    $response = curl_exec($ch);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
 
-if ($conn->query($sql) === TRUE) {
-    echo "回饋已成功提交";
+    if ($httpcode == 201) {
+        echo "回饋已成功提交";
+    } else {
+        echo "存入 Supabase 時發生錯誤: HTTP $httpcode<br>";
+        echo "回傳內容: $response";
+    }
 } else {
-    echo "Error: " . $sql . "<br>" . $conn->error;
+    echo "請透過表單提交資料";
 }
-
-$conn->close();
 ?>
 </body>
 </html>
