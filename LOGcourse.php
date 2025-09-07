@@ -290,94 +290,96 @@
             <div>
                 <!--這邊是課程評價結果-->
                 <?php
-                $link = mysqli_connect("localhost", "id21704570_orange", "Orange7749.", "id21704570_orange");
 
-                if ($link->connect_error) {
-                    die("連接數據庫失敗: " . $link->connect_error);
-                }
+$supabase_url = getenv('SUPABASE_URL');
+$supabase_anon_key = getenv('SUPABASE_ANON_KEY');
 
-                $sql = "SELECT * FROM evaluation";
-                $result = $link->query($sql);
+// 檢查環境變數是否設定
+if (!$supabase_url || !$supabase_anon_key) {
+    die("Supabase API URL 或 Key 未設定。請確保您已在 Render 環境變數中設定 SUPABASE_URL 和 SUPABASE_ANON_KEY。");
+}
 
-                if ($result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
-                        echo '<div class="evaluation-block" >';
+// 建立 cURL 請求
+$ch = curl_init();
 
-                        //echo "<p><strong>Course ID:</strong> " . $row['course_id'] . "</p>";
-                        //echo "<p><strong>Big Category:</strong> " . $row['big_category'] . "</p>";
-                        echo "<p class = 'scroll'><strong>課程類別 :</strong> <span class='pfont'>" . $row['small_category'] . "</p>";
-                        echo "<p><strong>課程名稱 :</strong> <span class='pfont'>" . $row['course_name'] . "</span></p>";
-                        echo "<p><strong>老師 :</strong> <span class='pfont'>" . $row['teacher'] . "</span></p>";
+// 設定 API 網址，用於獲取 evaluation 表格的所有資料
+$api_url = $supabase_url . '/rest/v1/evaluation?select=*';
 
-                        echo '<div class="full-content" style="display: none;">';
-                        echo "<p><strong>Thoughts:</strong> " . $row['thoughts'] . "</p>";
+curl_setopt($ch, CURLOPT_URL, $api_url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'apikey: ' . $supabase_anon_key,
+    'Authorization: Bearer ' . $supabase_anon_key,
+    'Content-Type: application/json',
+]);
 
-                        echo "<p><strong>整體評價:</strong> </p>";
-                        if ($row['all_evaluation'] == 1) {
-                            echo "<img src='images/one_star.png'>";
-                        } else if ($row['all_evaluation'] == 2) {
-                            echo "<img src='images/two_star.png'>";
-                        } else if ($row['all_evaluation'] == 3) {
-                            echo "<img src='images/three_star.png'>";
-                        } else if ($row['all_evaluation'] == 4) {
-                            echo "<img src='images/four_star.png'>";
-                        } else if ($row['all_evaluation'] == 5) {
-                            echo "<img src='images/five_star.png'>";
-                        }
+// 執行 cURL 請求並獲取回應
+$response = curl_exec($ch);
 
-                        echo "<p><strong>給分甜度:</strong> </p>";
-                        if ($row['credit_sweet'] == 1) {
-                            echo "<img src='images/one_star.png'>";
-                        } else if ($row['credit_sweet'] == 2) {
-                            echo "<img src='images/two_star.png'>";
-                        } else if ($row['credit_sweet'] == 3) {
-                            echo "<img src='images/three_star.png'>";
-                        } else if ($row['credit_sweet'] == 4) {
-                            echo "<img src='images/four_star.png'>";
-                        } else if ($row['credit_sweet'] == 5) {
-                            echo "<img src='images/five_star.png'>";
-                        }
+// 檢查是否有 cURL 錯誤
+if (curl_errno($ch)) {
+    die('cURL 錯誤: ' . curl_error($ch));
+}
 
-                        echo "<p><strong>含金量:</strong> </p>";
-                        if ($row['learning'] == 1) {
-                            echo "<img src='images/one_star.png'>";
-                        } else if ($row['learning'] == 2) {
-                            echo "<img src='images/two_star.png'>";
-                        } else if ($row['learning'] == 3) {
-                            echo "<img src='images/three_star.png'>";
-                        } else if ($row['learning'] == 4) {
-                            echo "<img src='images/four_star.png'>";
-                        } else if ($row['learning'] == 5) {
-                            echo "<img src='images/five_star.png'>";
-                        }
+// 關閉 cURL 資源
+curl_close($ch);
 
-                        echo "<p><strong>老師78程度:</strong> </p>";
-                        if ($row['evilking_level'] == 1) {
-                            echo "<img src='images/one_star.png'>";
-                        } else if ($row['evilking_level'] == 2) {
-                            echo "<img src='images/two_star.png'>";
-                        } else if ($row['evilking_level'] == 3) {
-                            echo "<img src='images/three_star.png'>";
-                        } else if ($row['evilking_level'] == 4) {
-                            echo "<img src='images/four_star.png'>";
-                        } else if ($row['evilking_level'] == 5) {
-                            echo "<img src='images/five_star.png'>";
-                        }
-                        echo '</div>';
-                        echo '<button class="show-full-content">learn more</button>';
-                        echo '<button class="show-partial-content" style="display: none;">Show less</button>';
-                        echo '</div>';
+// 將 JSON 回應轉換為 PHP 陣列
+$evaluations = json_decode($response, true);
 
+?>
+
+<section id="main" class="wrapper style1">
+    <header class="major">
+        <h2><strong>照過來照過來</strong></h2>
+        <p><strong>美吱城幫你整理好各種課程的評價了~ 準備好了就往下看吧!!!</strong></p>
+    </header>
+    <div class="container">
+        <div>
+            <?php
+            // 檢查是否有資料
+            if ($evaluations && count($evaluations) > 0) {
+                foreach ($evaluations as $row) {
+                    echo '<div class="evaluation-block">';
+                    echo "<p class='scroll'><strong>課程類別 :</strong> <span class='pfont'>" . htmlspecialchars($row['small_category']) . "</p>";
+                    echo "<p><strong>課程名稱 :</strong> <span class='pfont'>" . htmlspecialchars($row['course_name']) . "</span></p>";
+                    echo "<p><strong>老師 :</strong> <span class='pfont'>" . htmlspecialchars($row['teacher']) . "</span></p>";
+                    echo '<div class="full-content" style="display: none;">';
+                    echo "<p><strong>Thoughts:</strong> " . htmlspecialchars($row['thoughts']) . "</p>";
+
+                    // 評價分數的圖片顯示
+                    echo "<p><strong>整體評價:</strong> </p>";
+                    if (isset($row['all_evaluation'])) {
+                        echo "<img src='images/" . htmlspecialchars($row['all_evaluation']) . "_star.png'>";
                     }
-                } else {
-                    echo "0 筆結果";
-                }
 
-                $link->close();
-                ?>
-            </div>
+                    echo "<p><strong>給分甜度:</strong> </p>";
+                    if (isset($row['credit_sweet'])) {
+                        echo "<img src='images/" . htmlspecialchars($row['credit_sweet']) . "_star.png'>";
+                    }
+
+                    echo "<p><strong>含金量:</strong> </p>";
+                    if (isset($row['learning'])) {
+                        echo "<img src='images/" . htmlspecialchars($row['learning']) . "_star.png'>";
+                    }
+
+                    echo "<p><strong>老師78程度:</strong> </p>";
+                    if (isset($row['evilking_level'])) {
+                        echo "<img src='images/" . htmlspecialchars($row['evilking_level']) . "_star.png'>";
+                    }
+                    
+                    echo '</div>';
+                    echo '<button class="show-full-content">learn more</button>';
+                    echo '<button class="show-partial-content" style="display: none;">Show less</button>';
+                    echo '</div>';
+                }
+            } else {
+                echo "0 筆結果";
+            }
+            ?>
         </div>
-    </section>
+    </div>
+</section>
 
     <!-- Footer -->
     <footer id="footer">
@@ -476,5 +478,6 @@
     </script>
 
 </body>
+
 
 </html>
