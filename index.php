@@ -40,56 +40,55 @@
         <nav id="nav">
             <ul>
                 <?php
-                $link = mysqli_connect("localhost", "id21704570_orange", "Orange7749.", "id21704570_orange");
-
-                // 檢查連線是否成功
-                if ($link->connect_error) {
-                    die("Connection failed: " . $link->connect_error);
-                }
-
-                // 執行 SQL 查詢取得使用者數量
-                $userSql = "SELECT COUNT(*) as user_count FROM users";
-                $userResult = $link->query($userSql);
-
-                // 執行 SQL 查詢取得課程評價數量
-                $evaluationSql = "SELECT COUNT(*) as evaluation_count FROM evaluation";
-                $evaluationResult = $link->query($evaluationSql);
-
-                if ($userResult->num_rows > 0 && $evaluationResult->num_rows > 0) {
-                    // 取得使用者數量
-                    $userRow = $userResult->fetch_assoc();
-                    $userCount = $userRow["user_count"];
-
-                    // 取得課程評價數量
-                    $evaluationRow = $evaluationResult->fetch_assoc();
-                    $evaluationCount = $evaluationRow["evaluation_count"];
-
-                    // 顯示使用者數量和課程評價數量
-                    echo '<li><a>用戶人數: ' . $userCount . '</a></li>';
-                    echo '<li><a>課程評價: ' . $evaluationCount . '</a></li>';
-                } else {
-                    // 如果沒有結果，顯示錯誤訊息或預設值
-                    echo '<li><a>用戶人數: 無資料</a></li>';
-                    echo '<li><a>課程評價: 無資料</a></li>';
-                }
-
-                // 關閉資料庫連線
-                $link->close();
+                    session_start(); // 確保 session 已啟動
+                    
+                    $supabaseUrl = getenv('SUPABASE_URL');
+                    $supabaseKey = getenv('SUPABASE_ANON_KEY');
+                    
+                    // Helper function: 用 REST API 查詢表格資料數量
+                    function getTableCount($table) {
+                        global $supabaseUrl, $supabaseKey;
+                    
+                        $url = $supabaseUrl . "/rest/v1/$table?select=id";
+                        $ch = curl_init($url);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                            "apikey: $supabaseKey",
+                            "Authorization: Bearer $supabaseKey",
+                            "Content-Type: application/json"
+                        ]);
+                        $result = curl_exec($ch);
+                        curl_close($ch);
+                    
+                        if ($result) {
+                            $data = json_decode($result, true);
+                            return count($data); // 回傳資料筆數
+                        } else {
+                            return 0; // 若失敗則回傳 0
+                        }
+                    }
+                    
+                    // 取得使用者數量與課程評價數量
+                    $userCount = getTableCount('users');
+                    $evaluationCount = getTableCount('evaluation');
                 ?>
+                    
+                <li><a>用戶人數: <?php echo $userCount; ?></a></li>
+                <li><a>課程評價: <?php echo $evaluationCount; ?></a></li>
+                    
                 <li><a href="index.php" class="up">首頁</a></li>
                 <li><a href="course.php" class="up">課程評價</a></li>
-                <!--<li><a href="right-sidebar.html" class="up">待思考</a></li>-->
                 <li><a href="feedback_front.php" class="up">意見回饋</a></li>
+                    
                 <?php
-                // 按鈕
-                if (isset($_SESSION["login_session"]) && $_SESSION["login_session"] === true) {
-                    // 登錄後跳到 user.php
-                    echo '<li><a href="users.php"><img src="images/orange.png" alt="User Avatar" style="width: 40px; height: 40px;"></a></li>';
-                } else {
-                    // 沒登錄的話顯示登錄按鈕
-                    echo '<li><a href="login_front.php" class="button special">Login</a></li>';
-                }
+                    // 登入判斷
+                    if (isset($_SESSION["login_session"]) && $_SESSION["login_session"] === true) {
+                        echo '<li><a href="users.php"><img src="images/orange.png" alt="User Avatar" style="width: 40px; height: 40px;"></a></li>';
+                    } else {
+                        echo '<li><a href="login_front.php" class="button special">Login</a></li>';
+                    }
                 ?>
+
             </ul>
         </nav>
         <style>
@@ -758,3 +757,4 @@
 
 
 </html>
+
