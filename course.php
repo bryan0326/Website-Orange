@@ -267,9 +267,18 @@
             <div>
                 <!--這邊是課程評價結果-->
                 <?php
-                $link = mysqli_connect("localhost", "id21704570_orange", "Orange7749.", "id21704570_orange");
-
+                // 從 Render 環境變數中讀取資料庫連線資訊
+                $db_host = getenv('DB_HOST');
+                $db_user = getenv('DB_USER');
+                $db_pass = getenv('DB_PASS');
+                $db_name = getenv('DB_NAME');
+                
+                // 建立資料庫連線
+                $link = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
+                
+                // 檢查連線是否成功
                 if ($link->connect_error) {
+                    // 部署時連線失敗，會顯示這個錯誤
                     die("連接數據庫失敗: " . $link->connect_error);
                 }
 
@@ -454,5 +463,6 @@
     </script>
 
 </body>
+
 
 </html>
