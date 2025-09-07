@@ -2,15 +2,19 @@
 session_start();
 
 // Google OAuth 2.0 驗證參數
-$clientId = getenv('GOOGLE_CLIENT_ID');// 用戶端 ID，從 Google 開發者控制台獲取
-$clientSecret = getenv('GOOGLE_CLIENT_SECRET'); // 客戶端密碼，從 Google 開發者控制台獲取
-$redirectUri = "https://orange66.000webhostapp.com/orange/google-callback.php"; // 您的回調 URI，與開發者控制台中的設定一致
+$clientId = getenv('GOOGLE_CLIENT_ID'); // 用戶端 ID
+$clientSecret = getenv('GOOGLE_CLIENT_SECRET'); // 客戶端密碼
+$redirectUri = "https://orange66.000webhostapp.com/orange/google-callback.php"; // 回調 URI
+
+// Supabase 設定
+$SUPABASE_URL = getenv('SUPABASE_URL');
+$SUPABASE_ANON_KEY = getenv('SUPABASE_ANON_KEY');
 
 // 檢查是否有授權碼
 if (isset($_GET['code'])) {
-    // 使用授權碼向 Google 發送請求以獲取令牌
     $code = $_GET['code'];
     $tokenUrl = "https://oauth2.googleapis.com/token";
+
     $tokenData = [
         'code' => $code,
         'client_id' => $clientId,
@@ -19,9 +23,10 @@ if (isset($_GET['code'])) {
         'grant_type' => 'authorization_code'
     ];
 
+    // 取得 access token
     $ch = curl_init($tokenUrl);
     curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $tokenData);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($tokenData));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     $tokenResult = curl_exec($ch);
     curl_close($ch);
@@ -29,64 +34,75 @@ if (isset($_GET['code'])) {
     $tokenData = json_decode($tokenResult, true);
 
     if (isset($tokenData['access_token'])) {
-        // 使用令牌向 Google 發送請求以獲取使用者信息
-        $userInfoUrl = "https://www.googleapis.com/oauth2/v1/userinfo?access_token=" . $tokenData['access_token'];
+        $accessToken = $tokenData['access_token'];
+
+        // 取得使用者資訊
+        $userInfoUrl = "https://www.googleapis.com/oauth2/v1/userinfo?access_token=" . $accessToken;
         $userInfoResult = file_get_contents($userInfoUrl);
         $userInfo = json_decode($userInfoResult, true);
 
-        // 在這裡處理使用者信息，例如保存到資料庫，設置用戶會話等
-        handleUserInfo($userInfo);
-
-        // 最後，將用戶重定向到您應用程序的主頁面
-        header("Location: users.php");
-        exit();
+        if ($userInfo) {
+            handleUserInfo($userInfo, $SUPABASE_URL, $SUPABASE_ANON_KEY);
+            header("Location: users.php");
+            exit();
+        } else {
+            echo "無法取得使用者資訊";
+        }
     } else {
-        echo "無法獲取令牌。";
+        echo "無法獲取token。";
     }
 } else {
     echo "缺少授權碼。";
 }
 
+// 處理使用者資訊，存入 Supabase
+function handleUserInfo($userInfo, $SUPABASE_URL, $SUPABASE_ANON_KEY) {
+    if (!isset($userInfo['id'])) return;
 
-function handleUserInfo($userInfo) {
-    // 在這裡處理使用者信息，將其保存到資料庫
-    global $clientId, $redirectUri;
+    $googleUserId = $userInfo['id'];
+    $googleEmail = $userInfo['email'];
+    $googleName = $userInfo['name'];
 
-    // 假設這裡是您本地資料庫的連接
-   $link = mysqli_connect("localhost", "id21704570_orange", "Orange7749.", "id21704570_orange")
-        or die("無法開啟MySQL資料庫連接!<br/>");
+    // 查詢 Supabase 是否已存在使用者
+    $response = file_get_contents("$SUPABASE_URL/rest/v1/users?google_user_id=eq.$googleUserId", false, stream_context_create([
+        'http' => [
+            'method' => 'GET',
+            'header' => "apikey: $SUPABASE_ANON_KEY\r\nAuthorization: Bearer $SUPABASE_ANON_KEY\r\nContent-Type: application/json\r\n"
+        ]
+    ]));
 
-    if (isset($userInfo['id'])) {
-        $googleUserId = $userInfo['id'];
-        $googleEmail = $userInfo['email'];
-        $googleName = $userInfo['name'];
+    $existingUsers = json_decode($response, true);
 
-        // 檢查資料庫中是否已存在該 Google 使用者
-        $sqlCheckUser = "SELECT * FROM users WHERE google_user_id = '{$googleUserId}'";
-        $resultCheckUser = mysqli_query($link, $sqlCheckUser);
-        $existingUser = mysqli_fetch_assoc($resultCheckUser);
+    // 若不存在，新增使用者
+    if (empty($existingUsers)) {
+        $data = json_encode([
+            'google_user_id' => $googleUserId,
+            'email' => $googleEmail,
+            'name' => $googleName
+        ]);
 
-        if (!$existingUser) {
-            // 如果資料庫中沒有該 Google 使用者，插入新使用者記錄
-            $sqlInsertUser = "INSERT INTO users (google_user_id, email, name) VALUES ('$googleUserId', '$googleEmail', '$googleName')";
-            mysqli_query($link, $sqlInsertUser);
-        }
-        // 在這裡添加將 Google 使用者名字保存到 $_SESSION 中的代碼
-        $_SESSION['user_name'] = $googleName;
+        $context = stream_context_create([
+            'http' => [
+                'method' => 'POST',
+                'header' => "apikey: $SUPABASE_ANON_KEY\r\nAuthorization: Bearer $SUPABASE_ANON_KEY\r\nContent-Type: application/json\r\n",
+                'content' => $data
+            ]
+        ]);
+
+        file_get_contents("$SUPABASE_URL/rest/v1/users", false, $context);
     }
 
-    // 關閉資料庫連接
-    mysqli_close($link);
+    // 將名稱存入 session
+    $_SESSION['user_name'] = $googleName;
 }
 ?>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8" />
-<title>google-callback.php</title>
+<title>Google Callback</title>
 </head>
 <body>
-
-
+<p>正在處理登入，請稍候...</p>
 </body>
 </html>
