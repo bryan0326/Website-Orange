@@ -1,51 +1,67 @@
 <?php
-// 連線資料庫
-$link = mysqli_connect("localhost", "id21704570_orange", "Orange7749.", "id21704570_orange");
+session_start(); // 確保 session 已啟動
 
-// 檢查連線是否成功
-if ($link->connect_error) {
-    die("連線失敗: " . $link->connect_error);
-}
+// 取得 Supabase 環境變數
+$supabase_url = getenv('SUPABASE_URL');
+$supabase_key = getenv('SUPABASE_ANON_KEY');
 
-// 確保 session 已啟動
-session_start();
-
-// 獲取登入的使用者名稱
+// 確認使用者已登入
 if (isset($_SESSION['user_name']) && !empty($_SESSION['user_name'])) {
     $name = $_SESSION['user_name'];
-    // 其他程式碼...
 
     // 檢查表單是否提交
     if (isset($_POST['submit-btn'])) {
         // 獲取表單資料
-        $course_id = isset($_POST['course_id']) ? $_POST['course_id'] : '';
-        $course_name = isset($_POST['course_name']) ? $_POST['course_name'] : '';
-        $big_category = isset($_POST['big_category']) ? $_POST['big_category'] : '';
-        $small_category = isset($_POST['small_category']) ? $_POST['small_category'] : '';
-        $teacher = isset($_POST['teacher']) ? $_POST['teacher'] : '';
-        $thoughts = mysqli_real_escape_string($link, $_POST['content']);
-        $all_evaluation = mysqli_real_escape_string($link, $_POST['all_evaluation']);
-        $credit_sweet = mysqli_real_escape_string($link, $_POST['credit_sweet']);
-        $learning = mysqli_real_escape_string($link, $_POST['learning']);
-        $evilking_level = mysqli_real_escape_string($link, $_POST['evilking_level']);
+        $course_id = $_POST['course_id'] ?? '';
+        $course_name = $_POST['course_name'] ?? '';
+        $big_category = $_POST['big_category'] ?? '';
+        $small_category = $_POST['small_category'] ?? '';
+        $teacher = $_POST['teacher'] ?? '';
+        $thoughts = $_POST['content'] ?? '';
+        $all_evaluation = intval($_POST['all_evaluation'] ?? 0);
+        $credit_sweet = intval($_POST['credit_sweet'] ?? 0);
+        $learning = intval($_POST['learning'] ?? 0);
+        $evilking_level = intval($_POST['evilking_level'] ?? 0);
 
-        // 将数据插入数据库
-        $insert_query = "INSERT INTO evaluation (course_name, teacher, thoughts, all_evaluation, credit_sweet, learning, evilking_level, course_id, big_category, small_category) 
-                VALUES ('$course_name', '$teacher', '$thoughts', '$all_evaluation', '$credit_sweet', '$learning', '$evilking_level', '$course_id', '$big_category', '$small_category')";
+        // 建立要傳給 Supabase 的資料陣列
+        $data = [
+            "course_id" => $course_id,
+            "course_name" => $course_name,
+            "big_category" => $big_category,
+            "small_category" => $small_category,
+            "teacher" => $teacher,
+            "thoughts" => $thoughts,
+            "all_evaluation" => $all_evaluation,
+            "credit_sweet" => $credit_sweet,
+            "learning" => $learning,
+            "evilking_level" => $evilking_level
+        ];
 
-        if (mysqli_query($link, $insert_query)) {
-            // 取得剛插入的 evaluation_id
-            $last_inserted_id = mysqli_insert_id($link);
-        
-            // 資料成功存入資料庫後，進行頁面重新導向
+        // 初始化 cURL
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $supabase_url . "/rest/v1/evaluation");
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "apikey: $supabase_key",
+            "Authorization: Bearer $supabase_key",
+            "Content-Type: application/json",
+            "Prefer: return=representation" // 可選，回傳插入的資料
+        ]);
+
+        $response = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpcode == 201) {
+            // 插入成功，導向 LOGcourse.php
             header("Location: LOGcourse.php");
-            exit(); // 確保重新導向後終止腳本執行
+            exit();
         } else {
-            echo "存入資料庫時發生錯誤: " . mysqli_error($link);
+            echo "存入 Supabase 時發生錯誤: HTTP $httpcode<br>";
+            echo "回傳內容: $response";
         }
     }
 }
-
-// 關閉資料庫連線
-mysqli_close($link);
 ?>
