@@ -1,71 +1,75 @@
 <?php
-// Google OAuth 2.0 驗證參數
-$clientId = "GOOGLE_CLIENT_ID"; // 用戶端 ID，從 Google 開發者控制台獲取
-$clientSecret = "GOOGLE_CLIENT_SECRET"; // 客戶端密碼，從 Google 開發者控制台獲取
-$redirectUri = "https://orange66.000webhostapp.com/orange/google-callback.php"; // 您的回調 URI，與開發者控制台中的設定一致
+session_start(); // 確保 session 已啟動
+
+$supabaseUrl = getenv('SUPABASE_URL'); // Supabase 專案 URL
+$supabaseKey = getenv('SUPABASE_ANON_KEY'); // Supabase anon key
+
+// Google OAuth 2.0 參數
+$clientId = getenv('GOOGLE_CLIENT_ID');
+$clientSecret = getenv('GOOGLE_CLIENT_SECRET');
+$redirectUri = "https://orange66.000webhostapp.com/orange/google-callback.php";
+
+// 判斷表單提交類型
 if (isset($_POST["submit-btn"])) {
-   // Regular login logic
-   handleRegularLogin();
+    handleRegularLogin();
 } elseif (isset($_POST["google-submit"])) {
-   // Google login logic
-   validateGoogleAccount();
+    validateGoogleAccount();
 } else {
-   echo "<center><font color='red'>請輸入使用者名稱和密碼</font></center>";
+    echo "<center><font color='red'>請輸入使用者名稱和密碼</font></center>";
 }
 
+// 一般登入（Supabase）
 function handleRegularLogin() {
-   // Retrieve the username and password from the form
-   $username = $_POST["username"];
-   $password = $_POST["password"];
+    global $supabaseUrl, $supabaseKey;
 
-   // Validate that both username and password are provided
-   if (empty($username) || empty($password)) {
-      echo "<script>alert('請輸入使用者名稱和密碼'); window.location.href = 'login_front.php';</script>";
+    $username = $_POST["username"] ?? '';
+    $password = $_POST["password"] ?? '';
+
+    if (empty($username) || empty($password)) {
+        echo "<script>alert('請輸入使用者名稱和密碼'); window.location.href = 'login_front.php';</script>";
         return;
-   }
+    }
 
-   // Establish a MySQL database connection
-   $link = mysqli_connect("localhost", "id21704570_orange", "Orange7749.", "id21704570_orange")
-      or die("無法開啟MySQL資料庫連接!<br/>");
+    // 呼叫 Supabase REST API 查詢 users 表
+    $url = $supabaseUrl . "/rest/v1/users?email=eq." . urlencode($username);
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "apikey: $supabaseKey",
+        "Authorization: Bearer $supabaseKey",
+        "Content-Type: application/json",
+        "Prefer: return=representation"
+    ]);
 
-   // Sanitize input to prevent SQL injection (you might want to use prepared statements instead)
-   $username = mysqli_real_escape_string($link, $username);
-   $password = mysqli_real_escape_string($link, $password);
+    $response = curl_exec($ch);
+    curl_close($ch);
 
-   // Build and execute the SQL query
-   $sql = "SELECT * FROM users WHERE password='$password' AND email='$username'";
-   $result = mysqli_query($link, $sql);
-   $total_records = mysqli_num_rows($result);
+    $users = json_decode($response, true);
 
-   // Check if a user with the given credentials exists
-   if ($total_records > 0) {
-      // Successful login, set session variable and redirect to manage.html
-      session_start();
-      $_SESSION["login_session"] = true;
-      header("Location: manage.php");
-      exit(); // Ensure the script stops execution after redirection
-   } else {
-      // Login failed
-      echo "<script>alert('使用者名稱或密碼錯誤!'); window.location.href = 'login_front.php';</script>";
-        session_start();
+    if (!empty($users) && $users[0]['password'] === $password) {
+        // 登入成功
+        $_SESSION["login_session"] = true;
+        header("Location: manage.php");
+        exit();
+    } else {
+        // 登入失敗
         $_SESSION["login_session"] = false;
-   }
-
-   // Close the database connection
-   mysqli_close($link);
+        echo "<script>alert('使用者名稱或密碼錯誤!'); window.location.href = 'login_front.php';</script>";
+    }
 }
 
+// Google 登入
 function validateGoogleAccount() {
-   global $clientId, $redirectUri;
+    global $clientId, $redirectUri;
 
-   $googleLoginUrl = "https://accounts.google.com/o/oauth2/auth?" .
-       "client_id={$clientId}&" .
-       "redirect_uri={$redirectUri}&" .
-       "response_type=code&" .
-       "scope=email profile";
+    $googleLoginUrl = "https://accounts.google.com/o/oauth2/auth?" .
+        "client_id={$clientId}&" .
+        "redirect_uri={$redirectUri}&" .
+        "response_type=code&" .
+        "scope=email profile";
 
-   header("Location: {$googleLoginUrl}");
-   exit();
+    header("Location: {$googleLoginUrl}");
+    exit();
 }
 ?>
 <!DOCTYPE html>
@@ -76,7 +80,16 @@ function validateGoogleAccount() {
 <link rel="icon" type="image/png" href="images/orange.png">
 </head>
 <body>
-<!--API :816988876922-fds8lna3j0nc2c8qqc5uh0c1h163dm4g.apps.googleusercontent.com-->
+<form method="POST">
+    <h2>一般登入</h2>
+    <input type="text" name="username" placeholder="Email">
+    <input type="password" name="password" placeholder="Password">
+    <button type="submit" name="submit-btn">登入</button>
+</form>
 
+<form method="POST">
+    <h2>Google 登入</h2>
+    <button type="submit" name="google-submit">使用 Google 登入</button>
+</form>
 </body>
 </html>
