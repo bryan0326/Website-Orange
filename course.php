@@ -267,100 +267,47 @@
             <div>
                 <!--這邊是課程評價結果-->
                 <?php
-                // 從 Render 環境變數中讀取資料庫連線資訊
-                $db_host = getenv('DB_HOST');
-                $db_user = getenv('DB_USER');
-                $db_pass = getenv('DB_PASS');
-                $db_name = getenv('DB_NAME');
-                
-                // 建立資料庫連線
-                $link = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
-                
-                // 檢查連線是否成功
-                if ($link->connect_error) {
-                    // 部署時連線失敗，會顯示這個錯誤
-                    die("連接數據庫失敗: " . $link->connect_error);
-                }
-
-                $sql = "SELECT * FROM evaluation";
-                $result = $link->query($sql);
-
-                if ($result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
-                        echo '<div class="evaluation-block" >';
-
-                        //echo "<p><strong>Course ID:</strong> " . $row['course_id'] . "</p>";
-                        //echo "<p><strong>Big Category:</strong> " . $row['big_category'] . "</p>";
-                        echo "<p class = 'scroll'><strong>課程類別 :</strong> <span class='pfont'>" . $row['small_category'] . "</p>";
-                        echo "<p><strong>課程名稱 :</strong> <span class='pfont'>" . $row['course_name'] . "</span></p>";
-                        echo "<p><strong>老師 :</strong> <span class='pfont'>" . $row['teacher'] . "</span></p>";
-
-                        echo '<div class="full-content" style="display: none;">';
-                        echo "<p><strong>Thoughts:</strong> " . $row['thoughts'] . "</p>";
-
-                        echo "<p><strong>整體評價:</strong> </p>";
-                        if ($row['all_evaluation'] == 1) {
-                            echo "<img src='images/one_star.png'>";
-                        } else if ($row['all_evaluation'] == 2) {
-                            echo "<img src='images/two_star.png'>";
-                        } else if ($row['all_evaluation'] == 3) {
-                            echo "<img src='images/three_star.png'>";
-                        } else if ($row['all_evaluation'] == 4) {
-                            echo "<img src='images/four_star.png'>";
-                        } else if ($row['all_evaluation'] == 5) {
-                            echo "<img src='images/five_star.png'>";
+                    $supabase_url = getenv('SUPABASE_URL');
+                    $supabase_key = getenv('SUPABASE_ANON_KEY');
+                    
+                    // REST API endpoint (對應 evaluation 資料表)
+                    $endpoint = $supabase_url . "/rest/v1/evaluation";
+                    
+                    // 建立 cURL 請求
+                    $ch = curl_init($endpoint);
+                    
+                    // 設定 headers (包含 API 金鑰)
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                        "apikey: $supabase_key",
+                        "Authorization: Bearer $supabase_key",
+                        "Content-Type: application/json"
+                    ]);
+                    
+                    // 回傳結果
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    
+                    // 執行請求
+                    $response = curl_exec($ch);
+                    curl_close($ch);
+                    
+                    // 轉成陣列
+                    $data = json_decode($response, true);
+                    
+                    // 顯示資料
+                    if (!empty($data)) {
+                        foreach ($data as $row) {
+                            echo '<div class="evaluation-block">';
+                            echo "<p><strong>課程類別 :</strong> " . htmlspecialchars($row['small_category']) . "</p>";
+                            echo "<p><strong>課程名稱 :</strong> " . htmlspecialchars($row['course_name']) . "</p>";
+                            echo "<p><strong>老師 :</strong> " . htmlspecialchars($row['teacher']) . "</p>";
+                            echo "<p><strong>整體評價 :</strong> " . $row['all_evaluation'] . " </p>";
+                            echo '</div>';
                         }
-
-                        echo "<p><strong>給分甜度:</strong> </p>";
-                        if ($row['credit_sweet'] == 1) {
-                            echo "<img src='images/one_star.png'>";
-                        } else if ($row['credit_sweet'] == 2) {
-                            echo "<img src='images/two_star.png'>";
-                        } else if ($row['credit_sweet'] == 3) {
-                            echo "<img src='images/three_star.png'>";
-                        } else if ($row['credit_sweet'] == 4) {
-                            echo "<img src='images/four_star.png'>";
-                        } else if ($row['credit_sweet'] == 5) {
-                            echo "<img src='images/five_star.png'>";
-                        }
-
-                        echo "<p><strong>含金量:</strong> </p>";
-                        if ($row['learning'] == 1) {
-                            echo "<img src='images/one_star.png'>";
-                        } else if ($row['learning'] == 2) {
-                            echo "<img src='images/two_star.png'>";
-                        } else if ($row['learning'] == 3) {
-                            echo "<img src='images/three_star.png'>";
-                        } else if ($row['learning'] == 4) {
-                            echo "<img src='images/four_star.png'>";
-                        } else if ($row['learning'] == 5) {
-                            echo "<img src='images/five_star.png'>";
-                        }
-
-                        echo "<p><strong>老師78程度:</strong> </p>";
-                        if ($row['evilking_level'] == 1) {
-                            echo "<img src='images/one_star.png'>";
-                        } else if ($row['evilking_level'] == 2) {
-                            echo "<img src='images/two_star.png'>";
-                        } else if ($row['evilking_level'] == 3) {
-                            echo "<img src='images/three_star.png'>";
-                        } else if ($row['evilking_level'] == 4) {
-                            echo "<img src='images/four_star.png'>";
-                        } else if ($row['evilking_level'] == 5) {
-                            echo "<img src='images/five_star.png'>";
-                        }
-                        echo '</div>';
-                        echo '<button class="show-full-content">learn more</button>';
-                        echo '<button class="show-partial-content" style="display: none;">Show less</button>';
-                        echo '</div>';
-
+                    } else {
+                        echo "0 筆結果";
                     }
-                } else {
-                    echo "0 筆結果";
-                }
-
-                $link->close();
                 ?>
+
             </div>
         </div>
     </section>
@@ -466,3 +413,4 @@
 
 
 </html>
+
