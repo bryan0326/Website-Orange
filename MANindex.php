@@ -206,242 +206,160 @@
 			</section>
 
 			<!-- Main -->
-			<section id="main" class="wrapper style1"><h1 style="text-align: center; font-size: 42px;">歡迎使用嘉義大學課程評價系統!</h1>
-				<p></p>
-				<div class="container">
-				    <div>
-                        <!--這邊是課程評價結果-->
-                        <?php
-                        $link = mysqli_connect("localhost", "id21704570_orange", "Orange7749.", "id21704570_orange");
-        
-                        if ($link->connect_error) {
-                            die("連接數據庫失敗: " . $link->connect_error);
-                        }
-        
-                        $sql = "SELECT * FROM evaluation ORDER BY RAND() LIMIT 5";
-                        $result = $link->query($sql);
-        
-                        if ($result->num_rows > 0) {
-                            while ($row = $result->fetch_assoc()) {
-                                echo '<div class="evaluation-block" >';
-        
-                                //echo "<p><strong>Course ID:</strong> " . $row['course_id'] . "</p>";
-                                //echo "<p><strong>Big Category:</strong> " . $row['big_category'] . "</p>";
-                                echo "<p class = 'scroll'><strong>課程類別 :</strong> <span class='pfont'>" . $row['small_category'] . "</p>";
-                                echo "<p><strong>課程名稱 :</strong> <span class='pfont'>" . $row['course_name'] . "</span></p>";
-                                echo "<p><strong>老師 :</strong> <span class='pfont'>" . $row['teacher'] . "</span></p>";
-        
-                                echo '<div class="full-content" style="display: none;">';
-                                echo "<p><strong>Thoughts:</strong> " . $row['thoughts'] . "</p>";
-        
-                                echo "<p><strong>整體評價:</strong> </p>";
-                                if ($row['all_evaluation'] == 1) {
-                                    echo "<img src='images/one_star.png'>";
-                                } else if ($row['all_evaluation'] == 2) {
-                                    echo "<img src='images/two_star.png'>";
-                                } else if ($row['all_evaluation'] == 3) {
-                                    echo "<img src='images/three_star.png'>";
-                                } else if ($row['all_evaluation'] == 4) {
-                                    echo "<img src='images/four_star.png'>";
-                                } else if ($row['all_evaluation'] == 5) {
-                                    echo "<img src='images/five_star.png'>";
-                                }
-        
-                                echo "<p><strong>給分甜度:</strong> </p>";
-                                if ($row['credit_sweet'] == 1) {
-                                    echo "<img src='images/one_star.png'>";
-                                } else if ($row['credit_sweet'] == 2) {
-                                    echo "<img src='images/two_star.png'>";
-                                } else if ($row['credit_sweet'] == 3) {
-                                    echo "<img src='images/three_star.png'>";
-                                } else if ($row['credit_sweet'] == 4) {
-                                    echo "<img src='images/four_star.png'>";
-                                } else if ($row['credit_sweet'] == 5) {
-                                    echo "<img src='images/five_star.png'>";
-                                }
-        
-                                echo "<p><strong>含金量:</strong> </p>";
-                                if ($row['learning'] == 1) {
-                                    echo "<img src='images/one_star.png'>";
-                                } else if ($row['learning'] == 2) {
-                                    echo "<img src='images/two_star.png'>";
-                                } else if ($row['learning'] == 3) {
-                                    echo "<img src='images/three_star.png'>";
-                                } else if ($row['learning'] == 4) {
-                                    echo "<img src='images/four_star.png'>";
-                                } else if ($row['learning'] == 5) {
-                                    echo "<img src='images/five_star.png'>";
-                                }
-        
-                                echo "<p><strong>老師78程度:</strong> </p>";
-                                if ($row['evilking_level'] == 1) {
-                                    echo "<img src='images/one_star.png'>";
-                                } else if ($row['evilking_level'] == 2) {
-                                    echo "<img src='images/two_star.png'>";
-                                } else if ($row['evilking_level'] == 3) {
-                                    echo "<img src='images/three_star.png'>";
-                                } else if ($row['evilking_level'] == 4) {
-                                    echo "<img src='images/four_star.png'>";
-                                } else if ($row['evilking_level'] == 5) {
-                                    echo "<img src='images/five_star.png'>";
-                                }
-                                echo '</div>';
-                                echo '<button class="show-full-content">learn more</button>';
-                                echo '<button class="show-partial-content" style="display: none;">Show less</button>';
-                                echo '</div>';
-        
-                            }
-                        } else {
-                            echo "0 筆結果";
-                        }
-        
-                        $link->close();
-                        ?>
-                    </div>
-					<div class="row">
-						<div class="4u">
-							<section><h3>課程分類</h3>
-								<ul class="alt">
-									<li><a href="#">通識教育必修</a>
-										<ul id="class">
-											<li><a href="#">國文</a></li>
-											<li><a href="#">英文</a></li>
-											<li><a href="#">體育</a></li>
-										</ul> 
-									</li>
-									<li><a href="#">通識選修</a></li>
-									<li><a href="#">專業必修</a></li>
-									<li><a href="#">專業選修</a></li>
-									<li><a href="#">共同選修</a></li>
-									<li><a href="#">網路通識</a></li>
-								</ul></section><hr>
-							<!--<section><h3>Magna massa blandit</h3>
-								<p>Feugiat amet accumsan ante aliquet feugiat accumsan. Ante blandit accumsan eu amet tortor non lorem felis semper. Interdum adipiscing orci feugiat penatibus adipiscing col cubilia lorem ipsum dolor sit amet feugiat consequat.</p>
-								<ul class="actions"><li><a href="#" class="button alt">Learn More</a></li>
-								</ul></section>-->
-						</div>
-						<div class="8u skel-cell-important">
-						    <form method="GET">
-							<section>
-								<h2 style="text-align: center; margin-top: 80px">以課程名稱搜尋</h2>
-								<!-- 创建一个输入框 -->
-								<input type="text" id="searchInput" name="course" placeholder="例: 網際網路服務">
-								<!-- 创建一个搜索按钮 -->
-								<button type="submit" id="search">搜尋</button></section>
-							</form>
-							<form method="GET">
-							    <section>
-								<br><h2 style="text-align: center; margin-top: 20px">以老師搜尋</h2>
-								<!-- 创建一个输入框 -->
-								<input type="text" id="searchInput" name="teacher" placeholder="例: 許政穆">
-								<!-- 创建一个搜索按钮 -->
-								<button type="submit" id="search">搜尋</button>
-
-								<!--<a href="#" class="image fit"><img src="images/pic03.jpg" alt="" width="818" height="340"></a>-->
-								<p></p>
-								<p></p>
-							</section></form></div>
-					</div>
-					<!--<hr class="major"><div class="row">
-						<div class="6u">
-							<section class="special"><a href="#" class="image fit"><img src="images/pic01.jpg" alt="" width="680" height="308"></a>
-								<h3>Mollis adipiscing nisl</h3>
-								<p>Eget mi ac magna cep lobortis faucibus accumsan enim lacinia adipiscing metus urna adipiscing cep commodo id. Ac quis arcu amet. Arcu nascetur lorem adipiscing non faucibus odio nullam arcu lobortis. Aliquet ante feugiat. Turpis aliquet ac posuere volutpat lorem arcu aliquam lorem.</p>
-								<ul class="actions"><li><a href="#" class="button alt">Learn More</a></li>
-								</ul></section></div>
-						<div class="6u">
-							<section class="special"><a href="#" class="image fit"><img src="images/pic02.jpg" alt="" width="680" height="308"></a>
-								<h3>Neque ornare adipiscing</h3>
-								<p>Eget mi ac magna cep lobortis faucibus accumsan enim lacinia adipiscing metus urna adipiscing cep commodo id. Ac quis arcu amet. Arcu nascetur lorem adipiscing non faucibus odio nullam arcu lobortis. Aliquet ante feugiat. Turpis aliquet ac posuere volutpat lorem arcu aliquam lorem.</p>
-								<ul class="actions"><li><a href="#" class="button alt">Learn More</a></li>
-								</ul></section></div>
-					</div>-->
-				</div>
-			</section>
 			<section id="main" class="wrapper style1">
-    <h1 style="text-align: center; font-size: 42px;">查詢結果</h1>
-    <div class = 'coursecontainer'>
+    <h1 style="text-align: center; font-size: 42px;">歡迎使用嘉義大學課程評價系統!</h1>
+    <div class="container">
         <div>
-    <?php
-        $link = mysqli_connect("localhost", "id21704570_orange", "Orange7749.", "id21704570_orange");
-    
-        // Check connection
-        if ($link->connect_error) {
-            die("Connection failed: " . $link->connect_error);
-        }
-    
-        // Handle search request for teacher or course
+            <!--這邊是課程評價結果 (隨機 5 筆)-->
+            <?php
+            $supabase_url = getenv('SUPABASE_URL');
+            $supabase_anon_key = getenv('SUPABASE_ANON_KEY');
+
+            if (!$supabase_url || !$supabase_anon_key) {
+                die("Supabase API URL 或 Key 未設定。");
+            }
+
+            // function: 顯示星星
+            function showStars($value) {
+                if ($value >= 1 && $value <= 5) {
+                    echo "<img src='images/{$value}_star.png'>";
+                }
+            }
+
+            // 建立 cURL (隨機 5 筆)
+            $ch = curl_init();
+            $api_url = $supabase_url . '/rest/v1/evaluation?select=*&order=random()&limit=5';
+
+            curl_setopt($ch, CURLOPT_URL, $api_url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'apikey: ' . $supabase_anon_key,
+                'Authorization: Bearer ' . $supabase_anon_key,
+                'Content-Type: application/json',
+            ]);
+
+            $response = curl_exec($ch);
+            if (curl_errno($ch)) {
+                die('cURL 錯誤: ' . curl_error($ch));
+            }
+            curl_close($ch);
+
+            $evaluations = json_decode($response, true);
+
+            if ($evaluations && count($evaluations) > 0) {
+                foreach ($evaluations as $row) {
+                    echo '<div class="evaluation-block">';
+                    echo "<p class='scroll'><strong>課程類別 :</strong> <span class='pfont'>" . htmlspecialchars($row['small_category']) . "</p>";
+                    echo "<p><strong>課程名稱 :</strong> <span class='pfont'>" . htmlspecialchars($row['course_name']) . "</span></p>";
+                    echo "<p><strong>老師 :</strong> <span class='pfont'>" . htmlspecialchars($row['teacher']) . "</span></p>";
+
+                    echo '<div class="full-content" style="display: none;">';
+                    echo "<p><strong>Thoughts:</strong> " . htmlspecialchars($row['thoughts']) . "</p>";
+
+                    echo "<p><strong>整體評價:</strong> </p>"; showStars($row['all_evaluation'] ?? null);
+                    echo "<p><strong>給分甜度:</strong> </p>"; showStars($row['credit_sweet'] ?? null);
+                    echo "<p><strong>含金量:</strong> </p>"; showStars($row['learning'] ?? null);
+                    echo "<p><strong>老師78程度:</strong> </p>"; showStars($row['evilking_level'] ?? null);
+
+                    echo '</div>';
+                    echo '<button class="show-full-content">learn more</button>';
+                    echo '<button class="show-partial-content" style="display: none;">Show less</button>';
+                    echo '</div>';
+                }
+            } else {
+                echo "0 筆結果";
+            }
+            ?>
+        </div>
+
+        <!-- 課程搜尋 + 老師搜尋 -->
+        <div class="row">
+            <div class="4u">
+                <section><h3>課程分類</h3>
+                    <ul class="alt">
+                        <li><a href="#">通識教育必修</a>
+                            <ul id="class">
+                                <li><a href="#">國文</a></li>
+                                <li><a href="#">英文</a></li>
+                                <li><a href="#">體育</a></li>
+                            </ul> 
+                        </li>
+                        <li><a href="#">通識選修</a></li>
+                        <li><a href="#">專業必修</a></li>
+                        <li><a href="#">專業選修</a></li>
+                        <li><a href="#">共同選修</a></li>
+                        <li><a href="#">網路通識</a></li>
+                    </ul>
+                </section><hr>
+            </div>
+            <div class="8u skel-cell-important">
+                <form method="GET">
+                    <section>
+                        <h2 style="text-align: center; margin-top: 80px">以課程名稱搜尋</h2>
+                        <input type="text" name="course" placeholder="例: 網際網路服務">
+                        <button type="submit">搜尋</button>
+                    </section>
+                </form>
+                <form method="GET">
+                    <section>
+                        <br><h2 style="text-align: center; margin-top: 20px">以老師搜尋</h2>
+                        <input type="text" name="teacher" placeholder="例: 許政穆">
+                        <button type="submit">搜尋</button>
+                    </section>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="main" class="wrapper style1">
+    <h1 style="text-align: center; font-size: 42px;">查詢結果</h1>
+    <div class='coursecontainer'>
+        <div>
+        <?php
         if ($_SERVER["REQUEST_METHOD"] == "GET") {
-            if (isset($_GET['teacher'])) {
-                $teacher = $_GET['teacher'];
-                if (!empty($teacher)) {
-                    $sql = "SELECT * FROM evaluation WHERE teacher = '$teacher'";
-                    $result = $link->query($sql);
-    
-                    if ($result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
-                        echo '<div class="evaluation-block" >';
+            $filter = null;
+            if (!empty($_GET['teacher'])) {
+                $filter = "teacher=eq." . urlencode($_GET['teacher']);
+            } elseif (!empty($_GET['course'])) {
+                $filter = "course_name=eq." . urlencode($_GET['course']);
+            }
 
-                            //echo "<p><strong>Course ID:</strong> " . $row['course_id'] . "</p>";
-                            //echo "<p><strong>Big Category:</strong> " . $row['big_category'] . "</p>";
-                            echo "<p class = 'scroll'><strong>課程類別 :</strong> <span class='pfont'>" . $row['small_category'] . "</p>";
-                            echo "<p><strong>課程名稱 :</strong> <span class='pfont'>" . $row['course_name'] . "</span></p>";
-                            echo "<p><strong>老師 :</strong> <span class='pfont'>" . $row['teacher'] . "</span></p>";
+            if ($filter) {
+                $ch = curl_init();
+                $api_url = $supabase_url . '/rest/v1/evaluation?select=*&' . $filter;
 
-                            echo '<div class="full-content" style="display: none;">';
-                            echo "<p><strong>Thoughts:</strong> " . $row['thoughts'] . "</p>";
-                       echo "<p><strong>整體評價:</strong> </p>";
-                                    if ($row['all_evaluation'] == 1) {
-                                        echo "<img src='images/one_star.png'>";
-                                    } else if ($row['all_evaluation'] == 2) {
-                                        echo "<img src='images/two_star.png'>";
-                                    } else if ($row['all_evaluation'] == 3) {
-                                        echo "<img src='images/three_star.png'>";
-                                    } else if ($row['all_evaluation'] == 4) {
-                                        echo "<img src='images/four_star.png'>";
-                                    } else if ($row['all_evaluation'] == 5) {
-                                        echo "<img src='images/five_star.png'>";
-                                    }
-       
-                                    echo "<p><strong>給分甜度:</strong> </p>";
-                                    if ($row['credit_sweet'] == 1) {
-                                        echo "<img src='images/one_star.png'>";
-                                    } else if ($row['credit_sweet'] == 2) {
-                                        echo "<img src='images/two_star.png'>";
-                                    } else if ($row['credit_sweet'] == 3) {
-                                        echo "<img src='images/three_star.png'>";
-                                    } else if ($row['credit_sweet'] == 4) {
-                                        echo "<img src='images/four_star.png'>";
-                                    } else if ($row['credit_sweet'] == 5) {
-                                        echo "<img src='images/five_star.png'>";
-                                    }
-       
-                                    echo "<p><strong>含金量:</strong> </p>";
-                                    if ($row['learning'] == 1) {
-                                        echo "<img src='images/one_star.png'>";
-                                    } else if ($row['learning'] == 2) {
-                                        echo "<img src='images/two_star.png'>";
-                                    } else if ($row['learning'] == 3) {
-                                        echo "<img src='images/three_star.png'>";
-                                    } else if ($row['learning'] == 4) {
-                                        echo "<img src='images/four_star.png'>";
-                                    } else if ($row['learning'] == 5) {
-                                        echo "<img src='images/five_star.png'>";
-                                    }
-       
-                                    echo "<p><strong>老師78程度:</strong> </p>";
-                                    if ($row['evilking_level'] == 1) {
-                                        echo "<img src='images/one_star.png'>";
-                                    } else if ($row['evilking_level'] == 2) {
-                                        echo "<img src='images/two_star.png'>";
-                                    } else if ($row['evilking_level'] == 3) {
-                                        echo "<img src='images/three_star.png'>";
-                                    } else if ($row['evilking_level'] == 4) {
-                                        echo "<img src='images/four_star.png'>";
-                                    } else if ($row['evilking_level'] == 5) {
-                                        echo "<img src='images/five_star.png'>";
-                                    }
-       
+                curl_setopt($ch, CURLOPT_URL, $api_url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'apikey: ' . $supabase_anon_key,
+                    'Authorization: Bearer ' . $supabase_anon_key,
+                    'Content-Type: application/json',
+                ]);
+
+                $response = curl_exec($ch);
+                if (curl_errno($ch)) {
+                    die('cURL 錯誤: ' . curl_error($ch));
+                }
+                curl_close($ch);
+
+                $evaluations = json_decode($response, true);
+
+                if ($evaluations && count($evaluations) > 0) {
+                    foreach ($evaluations as $row) {
+                        echo '<div class="evaluation-block">';
+                        echo "<p class='scroll'><strong>課程類別 :</strong> <span class='pfont'>" . htmlspecialchars($row['small_category']) . "</p>";
+                        echo "<p><strong>課程名稱 :</strong> <span class='pfont'>" . htmlspecialchars($row['course_name']) . "</span></p>";
+                        echo "<p><strong>老師 :</strong> <span class='pfont'>" . htmlspecialchars($row['teacher']) . "</span></p>";
+
+                        echo '<div class="full-content" style="display: none;">';
+                        echo "<p><strong>Thoughts:</strong> " . htmlspecialchars($row['thoughts']) . "</p>";
+
+                        echo "<p><strong>整體評價:</strong> </p>"; showStars($row['all_evaluation'] ?? null);
+                        echo "<p><strong>給分甜度:</strong> </p>"; showStars($row['credit_sweet'] ?? null);
+                        echo "<p><strong>含金量:</strong> </p>"; showStars($row['learning'] ?? null);
+                        echo "<p><strong>老師78程度:</strong> </p>"; showStars($row['evilking_level'] ?? null);
+
                         echo '</div>';
                         echo '<button class="show-full-content">learn more</button>';
                         echo '<button class="show-partial-content" style="display: none;">Show less</button>';
@@ -449,96 +367,14 @@
                     }
                 } else {
                     echo "No results found.";
-                }
-                }
-            } elseif (isset($_GET['course'])) {
-                $course = $_GET['course'];
-                if (!empty($course)) {
-                    $sql = "SELECT * FROM evaluation WHERE course_name = '$course'";
-                    $result = $link->query($sql);
-    
-                    if ($result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
-                        echo '<div class="evaluation-block" >';
-
-                            //echo "<p><strong>Course ID:</strong> " . $row['course_id'] . "</p>";
-                            //echo "<p><strong>Big Category:</strong> " . $row['big_category'] . "</p>";
-                            echo "<p class = 'scroll'><strong>課程類別 :</strong> <span class='pfont'>" . $row['small_category'] . "</p>";
-                            echo "<p><strong>課程名稱 :</strong> <span class='pfont'>" . $row['course_name'] . "</span></p>";
-                            echo "<p><strong>老師 :</strong> <span class='pfont'>" . $row['teacher'] . "</span></p>";
-
-                            echo '<div class="full-content" style="display: none;">';
-                            echo "<p><strong>Thoughts:</strong> " . $row['thoughts'] . "</p>";
-                       echo "<p><strong>整體評價:</strong> </p>";
-                                    if ($row['all_evaluation'] == 1) {
-                                        echo "<img src='images/one_star.png'>";
-                                    } else if ($row['all_evaluation'] == 2) {
-                                        echo "<img src='images/two_star.png'>";
-                                    } else if ($row['all_evaluation'] == 3) {
-                                        echo "<img src='images/three_star.png'>";
-                                    } else if ($row['all_evaluation'] == 4) {
-                                        echo "<img src='images/four_star.png'>";
-                                    } else if ($row['all_evaluation'] == 5) {
-                                        echo "<img src='images/five_star.png'>";
-                                    }
-       
-                                    echo "<p><strong>給分甜度:</strong> </p>";
-                                    if ($row['credit_sweet'] == 1) {
-                                        echo "<img src='images/one_star.png'>";
-                                    } else if ($row['credit_sweet'] == 2) {
-                                        echo "<img src='images/two_star.png'>";
-                                    } else if ($row['credit_sweet'] == 3) {
-                                        echo "<img src='images/three_star.png'>";
-                                    } else if ($row['credit_sweet'] == 4) {
-                                        echo "<img src='images/four_star.png'>";
-                                    } else if ($row['credit_sweet'] == 5) {
-                                        echo "<img src='images/five_star.png'>";
-                                    }
-       
-                                    echo "<p><strong>含金量:</strong> </p>";
-                                    if ($row['learning'] == 1) {
-                                        echo "<img src='images/one_star.png'>";
-                                    } else if ($row['learning'] == 2) {
-                                        echo "<img src='images/two_star.png'>";
-                                    } else if ($row['learning'] == 3) {
-                                        echo "<img src='images/three_star.png'>";
-                                    } else if ($row['learning'] == 4) {
-                                        echo "<img src='images/four_star.png'>";
-                                    } else if ($row['learning'] == 5) {
-                                        echo "<img src='images/five_star.png'>";
-                                    }
-       
-                                    echo "<p><strong>老師78程度:</strong> </p>";
-                                    if ($row['evilking_level'] == 1) {
-                                        echo "<img src='images/one_star.png'>";
-                                    } else if ($row['evilking_level'] == 2) {
-                                        echo "<img src='images/two_star.png'>";
-                                    } else if ($row['evilking_level'] == 3) {
-                                        echo "<img src='images/three_star.png'>";
-                                    } else if ($row['evilking_level'] == 4) {
-                                        echo "<img src='images/four_star.png'>";
-                                    } else if ($row['evilking_level'] == 5) {
-                                        echo "<img src='images/five_star.png'>";
-                                    }
-       
-                        echo '</div>';
-                        echo '<button class="show-full-content">learn more</button>';
-                        echo '<button class="show-partial-content" style="display: none;">Show less</button>';
-                        echo '</div>';
-                    }
-                } else {
-                    echo "No results found.";
-                }
                 }
             }
         }
-    
-        // Close connection
-        $link->close();
-    ?>
+        ?>
+        </div>
     </div>
-    </div>
-    </section>
+</section>
+
 
 			
 			<!-- Footer -->
@@ -624,3 +460,4 @@
     </script>
 
 	</body></html>
+
