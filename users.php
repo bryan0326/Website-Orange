@@ -1,56 +1,73 @@
 <?php
-// 連線資料庫
-$link = mysqli_connect("localhost", "id21704570_orange", "Orange7749.", "id21704570_orange");
-// 檢查連線是否成功
-if ($link->connect_error) {
-    die("連線失敗: " . $link->connect_error);
+// 確保 session 已啟動
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-// 確保 session 已啟動
-session_start();
+// Supabase 設定
+$supabaseUrl = "https://YOUR_PROJECT.supabase.co/rest/v1";
+$supabaseKey = "YOUR_SUPABASE_ANON_KEY";
+
+// 通用查詢 function
+function supabaseSelect($table, $filters = []) {
+    global $supabaseUrl, $supabaseKey;
+
+    $query = http_build_query($filters);
+    $url = $supabaseUrl . "/" . $table . ($query ? "?" . $query : "");
+
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "apikey: $supabaseKey",
+        "Authorization: Bearer $supabaseKey",
+        "Content-Type: application/json"
+    ]);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    return json_decode($response, true);
+}
 
 // 獲取登入的使用者名稱
+$userName = '';
 if (isset($_SESSION['user_name']) && !empty($_SESSION['user_name'])) {
     $name = $_SESSION['user_name'];
 
-    // 查詢資料庫獲取使用者名稱
-    $query = "SELECT Name FROM users WHERE name = '$name'";
-    $result = mysqli_query($link, $query);
+    // 查詢 users 表
+    $result = supabaseSelect("users", ["name" => "eq." . $name]);
 
-    // 獲取使用者名稱
-    $userName = ($result && $row = mysqli_fetch_assoc($result)) ? $row['Name'] : '';
+    if (!empty($result) && isset($result[0]['name'])) {
+        $userName = $result[0]['name'];
+    }
 }
 
 // 檢查表單是否提交
 if (isset($_POST['submit-btn'])) {
-    $course_name = mysqli_real_escape_string($link, $_POST['course_name']);
-    $teacher = mysqli_real_escape_string($link, $_POST['teacher']);
+    $course_name = $_POST['course_name'];
+    $teacher = $_POST['teacher'];
 
-    // 查詢資料庫獲取詳細資料
-    $query = "SELECT * FROM course WHERE course_name = '$course_name' AND teacher = '$teacher'";
-    $result = mysqli_query($link, $query);
+    // 查詢 course 表
+    $result = supabaseSelect("course", [
+        "course_name" => "eq." . $course_name,
+        "teacher" => "eq." . $teacher
+    ]);
 
-    // 顯示課程詳細資料
-    if ($result && $row = mysqli_fetch_assoc($result)) {
-        $course_id = $row['course_id'];
-        $course_credit = $row['course_credit'];
-        $big_category = $row['big_category'];
-        $small_category = $row['small_category'];
-        $week = $row['week'];
-        $section_class = $row['section_class'];
-        $classroom = $row['classroom'];
-        $campus = $row['campus'];
+    if (!empty($result) && isset($result[0])) {
+        $course_id = $result[0]['course_id'];
+        $course_credit = $result[0]['course_credit'];
+        $big_category = $result[0]['big_category'];
+        $small_category = $result[0]['small_category'];
+        $week = $result[0]['week'];
+        $section_class = $result[0]['section_class'];
+        $classroom = $result[0]['classroom'];
+        $campus = $result[0]['campus'];
     }
 
-    // 釋放結果集
-    mysqli_free_result($result);
-    // 輸出 JavaScript 以滾動回到表單
     echo '<script>window.location.hash = "myForm2";</script>';
 }
-
-// 關閉資料庫連線
-mysqli_close($link);
 ?>
+
 <!DOCTYPE HTML>
 <!--
     Ion by TEMPLATED
@@ -514,5 +531,6 @@ mysqli_close($link);
     </footer>
 
 </body>
+
 
 </html>
