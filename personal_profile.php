@@ -1,29 +1,49 @@
 <?php
-// 連線資料庫
-$link = mysqli_connect("localhost", "id21704570_orange", "Orange7749.", "id21704570_orange");
-// 檢查連線是否成功
-if ($link->connect_error) {
-    die("連線失敗: " . $link->connect_error);
+// 確保 session 已啟動
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-// 確保 session 已啟動
-session_start();
+// Supabase 設定
+$supabaseUrl = "https://YOUR_PROJECT.supabase.co/rest/v1";
+$supabaseKey = "YOUR_SUPABASE_ANON_KEY";
+
+// 建立查詢 function
+function supabaseSelect($table, $filters = []) {
+    global $supabaseUrl, $supabaseKey;
+
+    $query = http_build_query($filters);
+    $url = $supabaseUrl . "/" . $table . ($query ? "?" . $query : "");
+
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "apikey: $supabaseKey",
+        "Authorization: Bearer $supabaseKey",
+        "Content-Type: application/json"
+    ]);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    return json_decode($response, true);
+}
 
 // 獲取登入的使用者名稱
+$userName = '';
 if (isset($_SESSION['user_name']) && !empty($_SESSION['user_name'])) {
     $name = $_SESSION['user_name'];
 
-    // 查詢資料庫獲取使用者名稱
-    $query = "SELECT Name FROM users WHERE name = '$name'";
-    $result = mysqli_query($link, $query);
+    // 從 Supabase 查詢
+    $result = supabaseSelect("users", ["name" => "eq." . $name]);
 
-    // 獲取使用者名稱
-    $userName = ($result && $row = mysqli_fetch_assoc($result)) ? $row['Name'] : '';
+    // 取第一筆名稱
+    if (!empty($result) && isset($result[0]['name'])) {
+        $userName = $result[0]['name'];
+    }
 }
-
-// 關閉資料庫連線
-mysqli_close($link);
 ?>
+
 <!DOCTYPE HTML>
 <!--
 	Ion by TEMPLATED
@@ -255,5 +275,6 @@ mysqli_close($link);
         <li>© Copyright by 第14組</li>
     </ul>
 </footer>
+
 
 	</body></html>
