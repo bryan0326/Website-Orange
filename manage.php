@@ -393,293 +393,151 @@
 
     <!-- Two -->
     <section id="two" class="wrapper style2">
-        <header class="major">
-            <h2>意見回饋檢視表</h2>
-            <p>閱讀前，請確認你的小小心臟是否能接受酸民抨擊</p>
-        </header>
-        <div style="margin-left: 100px;">
-            <?php
-            $link = mysqli_connect("localhost", "id21704570_orange", "Orange7749.", "id21704570_orange");
+    <header class="major">
+        <h2>意見回饋檢視表</h2>
+        <p>閱讀前，請確認你的小小心臟是否能接受酸民抨擊</p>
+    </header>
+    <div style="margin-left: 100px;">
+        <?php
+        // 讀環境變數 (在 cPanel/本地 .env 設定)
+        $supabaseUrl = getenv('SUPABASE_URL');
+        $supabaseKey = getenv('SUPABASE_ANON_KEY');
 
-            // 检查连接是否成功
-            if ($link->connect_error) {
-                die("连接数据库失败: " . $link->connect_error);
-            }
+        // 查詢 feedback 資料表
+        $ch = curl_init("$supabaseUrl/rest/v1/feedback?select=*");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "apikey: $supabaseKey",
+            "Authorization: Bearer $supabaseKey"
+        ]);
+        $response = curl_exec($ch);
+        curl_close($ch);
 
-            // 查询数据
-            $sql = "SELECT * FROM feedback"; // 请替换成你的实际数据表名
-            $result = $link->query($sql);
+        $feedbacks = json_decode($response, true);
 
-            // 显示数据
-            if ($result->num_rows > 0) {
-                echo "<div style='display: flex; flex-wrap: wrap;'>";
-                while ($row = $result->fetch_assoc()) {
-                    echo "<div style='width: 30%; box-sizing: border-box; padding: 10px; margin: 5px; background-color: white; border: 1px solid #ccc; border-radius: 10px; height: auto;'>";
-                    echo "<div>";
-                    echo "<img src='images/orange.png' style='float: left; width: 40px; height: 40px; border-radius: 50%;'>";
-
-                    // 文字
-                    echo "<div style='margin-left: 80px; order: 1; margin-left: 10px; margin-top: 5px; font-size: 16px; color: black;'>匿名小橘子</div><br>";
-
-                    echo "</div>";
-
-                    echo "<p style='color: black; margin-bottom: 5px;'><strong>評價:</strong> </p>";
-                    // 根据条件判断是否显示照片
-                    if ($row['rating'] == 1) {
-                        echo "<img src='images/one_star.png' width='230' height='50'>";
-                    } else if ($row['rating'] == 2) {
-                        echo "<img src='images/two_star.png' width='230' height='50'>";
-                    } else if ($row['rating'] == 3) {
-                        echo "<img src='images/three_star.png' width='230' height='50'>";
-                    } else if ($row['rating'] == 4) {
-                        echo "<img src='images/four_star.png' width='230' height='50'>";
-                    } else if ($row['rating'] == 5) {
-                        echo "<img src='images/five_star.png' width='230' height='50'>";
-                    }
-                    echo "<p style='color: black;'><strong>建議:</strong><br> " . $row['message'] . "</p>";
-                    echo "<p style='margin-bottom: 5px; color: black;'><strong> 更新時間:</strong> " . $row['created_at'] . "</p>";
-                    // 根据需要添加其他字段的显示
-            
-
-                    echo "</div>";
-                }
+        if (!empty($feedbacks)) {
+            echo "<div style='display: flex; flex-wrap: wrap;'>";
+            foreach ($feedbacks as $row) {
+                echo "<div style='width: 30%; box-sizing: border-box; padding: 10px; margin: 5px; background-color: white; border: 1px solid #ccc; border-radius: 10px; height: auto;'>";
+                echo "<div>";
+                echo "<img src='images/orange.png' style='float: left; width: 40px; height: 40px; border-radius: 50%;'>";
+                echo "<div style='margin-left: 80px; margin-top: 5px; font-size: 16px; color: black;'>匿名小橘子</div><br>";
                 echo "</div>";
-            } else {
-                echo "0 筆結果";
+
+                echo "<p style='color: black; margin-bottom: 5px;'><strong>評價:</strong></p>";
+                $rating = intval($row['rating']);
+                echo "<img src='images/{$rating}_star.png' width='230' height='50'>";
+                echo "<p style='color: black;'><strong>建議:</strong><br> " . htmlspecialchars($row['message']) . "</p>";
+                echo "<p style='margin-bottom: 5px; color: black;'><strong> 更新時間:</strong> " . $row['created_at'] . "</p>";
+                echo "</div>";
+            }
+            echo "</div>";
+        } else {
+            echo "0 筆結果";
+        }
+        ?>
+    </div>
+</section>
+
+<!-- Three -->
+<section id="three" class="wrapper style1">
+    <header class="major">
+        <h2>刪除課程評論</h2>
+        <p>刪除前，請先確認是否真的要刪除，否則將一去不復返</p>
+    </header>
+
+    <form style="float: left; width: 50%;" method="GET">
+        <div id="searchContainer">
+            <div id="categorySearch">
+                <h2 id="myForm">以課程名稱搜尋</h2>
+                <input type="text" id="searchInput" name="course" placeholder="例: 通識選修">
+                <button type="submit" name="search">搜 尋</button>
+            </div>
+        </div>
+    </form>
+
+    <form style="float: right; width: 50%;" method="GET">
+        <div id="searchContainer">
+            <div id="teacherSearch">
+                <h2 id="myForm">以老師搜尋</h2>
+                <input type="text" id="searchInput" name="teacher" placeholder="例: 許政穆">
+                <button type="submit" name="search">搜 尋</button>
+            </div>
+        </div>
+        <br>
+    </form>
+
+    <br><br>
+    <header class="major">
+        <h2>搜尋結果</h2>
+    </header>
+    <div class="coursecontainer">
+        <div>
+            <?php
+            $query = "";
+            if (isset($_GET['teacher']) && !empty($_GET['teacher'])) {
+                $teacher = urlencode($_GET['teacher']);
+                $query = "teacher=eq.$teacher";
+            } elseif (isset($_GET['course']) && !empty($_GET['course'])) {
+                $course = urlencode($_GET['course']);
+                $query = "course_name=eq.$course";
             }
 
-            // 关闭数据库连接
-            $link->close();
+            if ($query) {
+                $ch = curl_init("$supabaseUrl/rest/v1/evaluation?select=*&$query");
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    "apikey: $supabaseKey",
+                    "Authorization: Bearer $supabaseKey"
+                ]);
+                $response = curl_exec($ch);
+                curl_close($ch);
+
+                $evaluations = json_decode($response, true);
+
+                if (!empty($evaluations)) {
+                    foreach ($evaluations as $row) {
+                        echo '<div class="evaluation-block">';
+                        echo "<p class='scroll'><strong>課程類別 :</strong> <span class='pfont'>" . htmlspecialchars($row['small_category']) . "</span></p>";
+                        echo "<p><strong>課程名稱 :</strong> <span class='pfont'>" . htmlspecialchars($row['course_name']) . "</span></p>";
+                        echo "<p><strong>老師 :</strong> <span class='pfont'>" . htmlspecialchars($row['teacher']) . "</span></p>";
+
+                        echo '<div class="full-content" style="display: none;">';
+                        echo "<p><strong>Thoughts:</strong> " . htmlspecialchars($row['thoughts']) . "</p>";
+
+                        // 評分區塊 (動態顯示星星)
+                        $fields = [
+                            "all_evaluation" => "整體評價",
+                            "credit_sweet"   => "給分甜度",
+                            "learning"       => "含金量",
+                            "evilking_level" => "老師78程度"
+                        ];
+                        foreach ($fields as $field => $label) {
+                            $stars = intval($row[$field]);
+                            echo "<p><strong>$label:</strong></p>";
+                            echo "<img src='images/{$stars}_star.png'>";
+                        }
+                        echo '</div>';
+
+                        echo '<button class="show-full-content">learn more</button>';
+                        echo '<button class="show-partial-content" style="display: none;">Show less</button>';
+
+                        // 刪除按鈕 (打 Supabase DELETE API)
+                        echo '<form method="post" action="delete_evaluation.php">';
+                        echo '<input type="hidden" name="evaluation_id" value="' . $row['evaluation_id'] . '">';
+                        echo '<button type="submit" class="delete-button">刪除</button>';
+                        echo '</form>';
+                        echo '</div>';
+                    }
+                } else {
+                    echo "No results found.";
+                }
+            }
+            echo '<script>window.location.hash = "myForm";</script>';
             ?>
         </div>
-    </section>
-
-    <!-- Three -->
-    <section id="three" class="wrapper style1">
-        <header class="major">
-            <h2>刪除課程評論</h2>
-            <p>刪除前，請先確認是否真的要刪除，否則將一去不復返</p>
-        </header>
-        <form style="float: left; width: 50%;" method="GET">
-            <div id="searchContainer">
-                <div id="categorySearch">
-                    <h2 id="myForm">以課程名稱搜尋</h2>
-                    <input type="text" id="searchInput" name="course" placeholder="例: 通識選修">
-                    <button type="submit" name="search" id="search">搜 尋</button>
-                </div>
-            </div>
-        </form>
-        <form style: "float: right; width: 50%;" method="GET">
-            <div id="searchContainer">
-                <div id="teacherSearch">
-                    <h2 id="myForm">以老師搜尋</h2>
-                    <input type="text" id="searchInput" name="teacher" placeholder="例: 許政穆">
-                    <button type="submit" name="search" id="search">搜 尋</button>
-                </div>
-            </div>
-            <br>
-        </form>
-        <br><br>
-        <header class="major">
-
-            <h2>搜尋結果</h2>
-        </header>
-        <div class="coursecontainer">
-            <div>
-                <?php
-
-                $link = mysqli_connect("localhost", "id21704570_orange", "Orange7749.", "id21704570_orange");
-
-                // Check connection
-                if ($link->connect_error) {
-                    die("Connection failed: " . $link->connect_error);
-                }
-
-                // Handle search request for teacher or course
-                if ($_SERVER["REQUEST_METHOD"] == "GET") {
-                    if (isset($_GET['teacher'])) {
-                        $teacher = $_GET['teacher'];
-                        if (!empty($teacher)) {
-                            $sql = "SELECT * FROM evaluation WHERE teacher = '$teacher'";
-                            $result = $link->query($sql);
-
-                            if ($result->num_rows > 0) {
-                                while ($row = $result->fetch_assoc()) {
-                                    echo '<div class="evaluation-block" >';
-
-                                    //echo "<p><strong>Course ID:</strong> " . $row['course_id'] . "</p>";
-                                    //echo "<p><strong>Big Category:</strong> " . $row['big_category'] . "</p>";
-                                    echo "<p class = 'scroll'><strong>課程類別 :</strong> <span class='pfont'>" . $row['small_category'] . "</p>";
-                                    echo "<p><strong>課程名稱 :</strong> <span class='pfont'>" . $row['course_name'] . "</span></p>";
-                                    echo "<p><strong>老師 :</strong> <span class='pfont'>" . $row['teacher'] . "</span></p>";
-
-                                    echo '<div class="full-content" style="display: none;">';
-                                    echo "<p><strong>Thoughts:</strong> " . $row['thoughts'] . "</p>";
-                                    echo "<p><strong>整體評價:</strong> </p>";
-                                    if ($row['all_evaluation'] == 1) {
-                                        echo "<img src='images/one_star.png'>";
-                                    } else if ($row['all_evaluation'] == 2) {
-                                        echo "<img src='images/two_star.png'>";
-                                    } else if ($row['all_evaluation'] == 3) {
-                                        echo "<img src='images/three_star.png'>";
-                                    } else if ($row['all_evaluation'] == 4) {
-                                        echo "<img src='images/four_star.png'>";
-                                    } else if ($row['all_evaluation'] == 5) {
-                                        echo "<img src='images/five_star.png'>";
-                                    }
-
-                                    echo "<p><strong>給分甜度:</strong> </p>";
-                                    if ($row['credit_sweet'] == 1) {
-                                        echo "<img src='images/one_star.png'>";
-                                    } else if ($row['credit_sweet'] == 2) {
-                                        echo "<img src='images/two_star.png'>";
-                                    } else if ($row['credit_sweet'] == 3) {
-                                        echo "<img src='images/three_star.png'>";
-                                    } else if ($row['credit_sweet'] == 4) {
-                                        echo "<img src='images/four_star.png'>";
-                                    } else if ($row['credit_sweet'] == 5) {
-                                        echo "<img src='images/five_star.png'>";
-                                    }
-
-                                    echo "<p><strong>含金量:</strong> </p>";
-                                    if ($row['learning'] == 1) {
-                                        echo "<img src='images/one_star.png'>";
-                                    } else if ($row['learning'] == 2) {
-                                        echo "<img src='images/two_star.png'>";
-                                    } else if ($row['learning'] == 3) {
-                                        echo "<img src='images/three_star.png'>";
-                                    } else if ($row['learning'] == 4) {
-                                        echo "<img src='images/four_star.png'>";
-                                    } else if ($row['learning'] == 5) {
-                                        echo "<img src='images/five_star.png'>";
-                                    }
-
-                                    echo "<p><strong>老師78程度:</strong> </p>";
-                                    if ($row['evilking_level'] == 1) {
-                                        echo "<img src='images/one_star.png'>";
-                                    } else if ($row['evilking_level'] == 2) {
-                                        echo "<img src='images/two_star.png'>";
-                                    } else if ($row['evilking_level'] == 3) {
-                                        echo "<img src='images/three_star.png'>";
-                                    } else if ($row['evilking_level'] == 4) {
-                                        echo "<img src='images/four_star.png'>";
-                                    } else if ($row['evilking_level'] == 5) {
-                                        echo "<img src='images/five_star.png'>";
-                                    }
-
-                                    echo '</div>';
-
-                                    echo '<button class="show-full-content">learn more</button>';
-
-                                    echo '<button class="show-partial-content" style="display: none;">Show less</button>';
-                                    // Add a delete button
-                                    echo '<form method="post" action="delete_evaluation.php">';
-                                    echo '<input type="hidden" name="evaluation_id" value="' . $row['evaluation_id'] . '">';
-                                    echo '<button type="submit" class="delete-button">刪除</button>';
-                                    echo '</form>';
-                                    echo '</div>';
-                                }
-                            } else {
-                                echo "No results found.";
-                            }
-                        }
-                    } elseif (isset($_GET['course'])) {
-                        $course = $_GET['course'];
-                        if (!empty($course)) {
-                            $sql = "SELECT * FROM evaluation WHERE course_name = '$course'";
-                            $result = $link->query($sql);
-
-                            if ($result->num_rows > 0) {
-                                while ($row = $result->fetch_assoc()) {
-                                    echo '<div class="evaluation-block" >';
-
-                                    //echo "<p><strong>Course ID:</strong> " . $row['course_id'] . "</p>";
-                                    //echo "<p><strong>Big Category:</strong> " . $row['big_category'] . "</p>";
-                                    echo "<p class = 'scroll'><strong>課程類別 :</strong> <span class='pfont'>" . $row['small_category'] . "</p>";
-                                    echo "<p><strong>課程名稱 :</strong> <span class='pfont'>" . $row['course_name'] . "</span></p>";
-                                    echo "<p><strong>老師 :</strong> <span class='pfont'>" . $row['teacher'] . "</span></p>";
-
-                                    echo '<div class="full-content" style="display: none;">';
-                                    echo "<p><strong>Thoughts:</strong> " . $row['thoughts'] . "</p>";
-                                    echo "<p><strong>整體評價:</strong> </p>";
-                                    if ($row['all_evaluation'] == 1) {
-                                        echo "<img src='images/one_star.png'>";
-                                    } else if ($row['all_evaluation'] == 2) {
-                                        echo "<img src='images/two_star.png'>";
-                                    } else if ($row['all_evaluation'] == 3) {
-                                        echo "<img src='images/three_star.png'>";
-                                    } else if ($row['all_evaluation'] == 4) {
-                                        echo "<img src='images/four_star.png'>";
-                                    } else if ($row['all_evaluation'] == 5) {
-                                        echo "<img src='images/five_star.png'>";
-                                    }
-
-                                    echo "<p><strong>給分甜度:</strong> </p>";
-                                    if ($row['credit_sweet'] == 1) {
-                                        echo "<img src='images/one_star.png'>";
-                                    } else if ($row['credit_sweet'] == 2) {
-                                        echo "<img src='images/two_star.png'>";
-                                    } else if ($row['credit_sweet'] == 3) {
-                                        echo "<img src='images/three_star.png'>";
-                                    } else if ($row['credit_sweet'] == 4) {
-                                        echo "<img src='images/four_star.png'>";
-                                    } else if ($row['credit_sweet'] == 5) {
-                                        echo "<img src='images/five_star.png'>";
-                                    }
-
-                                    echo "<p><strong>含金量:</strong> </p>";
-                                    if ($row['learning'] == 1) {
-                                        echo "<img src='images/one_star.png'>";
-                                    } else if ($row['learning'] == 2) {
-                                        echo "<img src='images/two_star.png'>";
-                                    } else if ($row['learning'] == 3) {
-                                        echo "<img src='images/three_star.png'>";
-                                    } else if ($row['learning'] == 4) {
-                                        echo "<img src='images/four_star.png'>";
-                                    } else if ($row['learning'] == 5) {
-                                        echo "<img src='images/five_star.png'>";
-                                    }
-
-                                    echo "<p><strong>老師78程度:</strong> </p>";
-                                    if ($row['evilking_level'] == 1) {
-                                        echo "<img src='images/one_star.png'>";
-                                    } else if ($row['evilking_level'] == 2) {
-                                        echo "<img src='images/two_star.png'>";
-                                    } else if ($row['evilking_level'] == 3) {
-                                        echo "<img src='images/three_star.png'>";
-                                    } else if ($row['evilking_level'] == 4) {
-                                        echo "<img src='images/four_star.png'>";
-                                    } else if ($row['evilking_level'] == 5) {
-                                        echo "<img src='images/five_star.png'>";
-                                    }
-
-                                    echo '</div>';
-
-                                    echo '<button class="show-full-content">learn more</button>';
-                                    echo '<button class="show-partial-content" style="display: none;">Show less</button>';
-                                    // Add a delete button
-                                    echo '<form method="post" action="delete_evaluation.php">';
-                                    echo '<input type="hidden" name="evaluation_id" value="' . $row['evaluation_id'] . '">';
-                                    echo '<button type="submit" class="delete-button">刪除</button>';
-                                    echo '</form>';
-
-                                    echo '</div>';
-                                }
-                            } else {
-                                echo "No results found.";
-                            }
-                        }
-                    }
-                }
-
-                // Close connection
-                $link->close();
-                echo '<script>window.location.hash = "myForm";</script>';
-                ?>
-            </div>
-        </div>
-
-    </section>
+    </div>
+</section>
 
     <!-- Footer -->
     <footer id="footer">
@@ -775,5 +633,6 @@
 
     </script>
 </body>
+
 
 </html>
