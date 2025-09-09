@@ -4,6 +4,12 @@ FROM php:8.2-apache
 # 設定工作目錄
 WORKDIR /var/www/html
 
+# 安裝 PostgreSQL 開發套件
+# Debian/Ubuntu:
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 # 安裝 PostgreSQL 擴充套件
 RUN docker-php-ext-install pdo pdo_pgsql
 
@@ -15,5 +21,6 @@ RUN a2enmod rewrite
 
 # 指定容器啟動時執行的命令
 CMD ["apache2-foreground"]
+
 
 
