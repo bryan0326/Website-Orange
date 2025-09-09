@@ -1,3 +1,36 @@
+<?php
+    session_start(); // 確保 session 已啟動
+                    
+    $supabaseUrl = getenv('SUPABASE_URL');
+    $supabaseKey = getenv('SUPABASE_ANON_KEY');
+                    
+     // Helper function: 用 REST API 查詢表格資料數量
+    function getTableCount($table) {
+        global $supabaseUrl, $supabaseKey;
+                    
+        $url = $supabaseUrl . "/rest/v1/$table?select=id";
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+         curl_setopt($ch, CURLOPT_HTTPHEADER, [
+             "apikey: $supabaseKey",
+              "Authorization: Bearer $supabaseKey",
+               "Content-Type: application/json"
+         ]);
+          $result = curl_exec($ch);
+        curl_close($ch);
+                    
+        if ($result) {
+             $data = json_decode($result, true);
+             return count($data); // 回傳資料筆數
+        } else {
+            return 0; // 若失敗則回傳 0
+        }
+    }
+                    
+    // 取得使用者數量與課程評價數量
+    $userCount = getTableCount('users');
+    $evaluationCount = getTableCount('evaluation');
+?>
 <!DOCTYPE HTML>
 <!--
     Ion by TEMPLATED
@@ -39,39 +72,7 @@
         <h1><a href="index.php">早安美吱澄</a></h1>
         <nav id="nav">
             <ul>
-                <?php
-                    session_start(); // 確保 session 已啟動
-                    
-                    $supabaseUrl = getenv('SUPABASE_URL');
-                    $supabaseKey = getenv('SUPABASE_ANON_KEY');
-                    
-                    // Helper function: 用 REST API 查詢表格資料數量
-                    function getTableCount($table) {
-                        global $supabaseUrl, $supabaseKey;
-                    
-                        $url = $supabaseUrl . "/rest/v1/$table?select=id";
-                        $ch = curl_init($url);
-                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                            "apikey: $supabaseKey",
-                            "Authorization: Bearer $supabaseKey",
-                            "Content-Type: application/json"
-                        ]);
-                        $result = curl_exec($ch);
-                        curl_close($ch);
-                    
-                        if ($result) {
-                            $data = json_decode($result, true);
-                            return count($data); // 回傳資料筆數
-                        } else {
-                            return 0; // 若失敗則回傳 0
-                        }
-                    }
-                    
-                    // 取得使用者數量與課程評價數量
-                    $userCount = getTableCount('users');
-                    $evaluationCount = getTableCount('evaluation');
-                ?>
+                
                     
                 <li><a>用戶人數: <?php echo $userCount; ?></a></li>
                 <li><a>課程評價: <?php echo $evaluationCount; ?></a></li>
@@ -576,5 +577,6 @@
 
 
 </html>
+
 
 
