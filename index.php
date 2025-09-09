@@ -1,6 +1,10 @@
 <?php
     session_start(); // 確保 session 已啟動
-                    
+
+    //debug
+    var_dump(getenv('SUPABASE_URL'));
+    var_dump(getenv('SUPABASE_ANON_KEY'));
+
     $supabaseUrl = getenv('SUPABASE_URL');
     $supabaseKey = getenv('SUPABASE_ANON_KEY');
                     
@@ -18,7 +22,8 @@
          ]);
           $result = curl_exec($ch);
         curl_close($ch);
-                    
+
+
         if ($result) {
              $data = json_decode($result, true);
              return count($data); // 回傳資料筆數
@@ -573,6 +578,7 @@
 
 
 </html>
+
 
 
 
