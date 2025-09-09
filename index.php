@@ -321,10 +321,6 @@
             <div>
                 <!--這邊是課程評價結果-->
                 <?php
-                    session_start(); // 確保 session 已啟動
-                    
-                    $supabaseUrl = getenv('SUPABASE_URL');
-                    $supabaseKey = getenv('SUPABASE_ANON_KEY');
                     
                     // Helper: 發送 GET 請求到 Supabase
                     function supabaseGet($endpoint, $apikey) {
@@ -577,6 +573,7 @@
 
 
 </html>
+
 
 
 
