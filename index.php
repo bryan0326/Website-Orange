@@ -3,8 +3,8 @@
 session_start();
 
 // 讀環境變數（Render / 你主機上設定的 SUPABASE_*）
-$supabase_url = getenv('SUPABASE_URL');
-$supabase_key = getenv('SUPABASE_ANON_KEY');
+$supabaseUrl = getenv('SUPABASE_URL');
+$supabaseKey = getenv('SUPABASE_ANON_KEY');
 
 // 內部 flag 與錯誤收集（不要直接 die()）
 $sup_ok = true;
@@ -20,19 +20,19 @@ if (!$supabaseUrl || !$supabaseKey) {
 
 // 小而穩固的 cURL helper（帶 timeout 與錯誤處理）
 function supabase_get(string $path) {
-    global $supabase_url, $supabase_key, $sup_ok, $sup_errors;
+    global $supabaseUrl, $supabaseKey, $sup_ok, $sup_errors;
     if (!$sup_ok) return false;
 
     // 組完整 URL（允許 path 已含 query）
-    $endpoint = rtrim($supabase_url, '/') . '/rest/v1/' . ltrim($path, '/');
+    $endpoint = rtrim($supabaseUrl, '/') . '/rest/v1/' . ltrim($path, '/');
 
     $ch = curl_init($endpoint);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 6); // <- 關鍵：避免長時間 hang
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 4);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'apikey: ' . $supabase_key,
-        'Authorization: Bearer ' . $supabase_key,
+        'apikey: ' . $supabaseKey,
+        'Authorization: Bearer ' . $supabaseKey,
         'Content-Type: application/json',
         'Accept: application/json'
     ]);
@@ -621,6 +621,7 @@ if (!empty($sup_errors)) {
 
 
 </html>
+
 
 
 
