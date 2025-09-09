@@ -69,7 +69,7 @@ $userCount = is_array($users_data) ? count($users_data) : '—';
 
 // 取得隨機 5 筆 evaluation
 $evals = supabase_get('evaluation?select=*&order=random()&limit=5');
-$evaluationCount = is_array($eval_data) ? count($eval_data) : 0;
+$evaluationCount = is_array($evals) ? count($evals) : 0;
 
 // 供頁面錯誤顯示（除錯用）
 if (!empty($sup_errors)) {
@@ -374,18 +374,24 @@ if (!empty($sup_errors)) {
                     function supabaseGet($endpoint, $apikey) {
                         $ch = curl_init($endpoint);
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                        curl_setopt($ch, CURLOPT_TIMEOUT, 6);
+                        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 4);
                         curl_setopt($ch, CURLOPT_HTTPHEADER, [
                             "apikey: $apikey",
                             "Authorization: Bearer $apikey",
                             "Content-Type: application/json"
                         ]);
                         $response = curl_exec($ch);
+                        if ($response === false) {
+                            error_log('cURL Error: ' . curl_error($ch));
+                        }
                         curl_close($ch);
                         return json_decode($response, true);
                     }
+
                     
                     // 取得隨機 5 筆課程評價
-                    $evaluations = supabaseGet("$supabaseUrl/rest/v1/evaluation?select=*&limit=5&order=random()", $supabaseKey);
+                    $evaluations = supabaseGet("$supabaseUrl/rest/v1/evaluation?select=*&limit=5", $supabaseKey);
                     
                     if (is_array($evaluations) && count($evaluations) > 0) {
                         foreach ($evaluations as $row) {
@@ -621,6 +627,7 @@ if (!empty($sup_errors)) {
 
 
 </html>
+
 
 
 
