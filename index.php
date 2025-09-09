@@ -1,41 +1,83 @@
 <?php
-    session_start(); // 確保 session 已啟動
+// 必須是檔案第一行：避免 headers already sent
+session_start();
 
-    //debug
-    var_dump(getenv('SUPABASE_URL'));
-    var_dump(getenv('SUPABASE_ANON_KEY'));
+// 讀環境變數（Render / 你主機上設定的 SUPABASE_*）
+$supabase_url = getenv('SUPABASE_URL');
+$supabase_key = getenv('SUPABASE_ANON_KEY');
 
-    $supabaseUrl = getenv('SUPABASE_URL');
-    $supabaseKey = getenv('SUPABASE_ANON_KEY');
-                    
-     // Helper function: 用 REST API 查詢表格資料數量
-    function getTableCount($table) {
-        global $supabaseUrl, $supabaseKey;
-                    
-        $url = $supabaseUrl . "/rest/v1/$table?select=id";
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-             "apikey: $supabaseKey",
-              "Authorization: Bearer $supabaseKey",
-               "Content-Type: application/json"
-         ]);
-          $result = curl_exec($ch);
-        curl_close($ch);
+// 內部 flag 與錯誤收集（不要直接 die()）
+$sup_ok = true;
+$sup_errors = [];
 
+// 簡易檢查
+if (!$supabase_url || !$supabase_key) {
+    $sup_ok = false;
+    $sup_errors[] = 'Supabase 環境變數未設定（SUPABASE_URL / SUPABASE_ANON_KEY）。';
+    // 不用 die()，只記錄，讓頁面可以繼續載入（顯示友善訊息）
+    error_log('Supabase env missing in index.php');
+}
 
-        if ($result) {
-             $data = json_decode($result, true);
-             return count($data); // 回傳資料筆數
-        } else {
-            return 0; // 若失敗則回傳 0
-        }
+// 小而穩固的 cURL helper（帶 timeout 與錯誤處理）
+function supabase_get(string $path) {
+    global $supabase_url, $supabase_key, $sup_ok, $sup_errors;
+    if (!$sup_ok) return false;
+
+    // 組完整 URL（允許 path 已含 query）
+    $endpoint = rtrim($supabase_url, '/') . '/rest/v1/' . ltrim($path, '/');
+
+    $ch = curl_init($endpoint);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 6); // <- 關鍵：避免長時間 hang
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 4);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'apikey: ' . $supabase_key,
+        'Authorization: Bearer ' . $supabase_key,
+        'Content-Type: application/json',
+        'Accept: application/json'
+    ]);
+
+    $res = curl_exec($ch);
+    $curlErr = curl_error($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($curlErr) {
+        error_log("supabase_get cURL error: $curlErr (endpoint: $endpoint)");
+        $sup_errors[] = 'cURL 錯誤: ' . $curlErr;
+        return false;
     }
-                    
-    // 取得使用者數量與課程評價數量
-    $userCount = getTableCount('users');
-    $evaluationCount = getTableCount('evaluation');
+    if ($httpCode >= 400) {
+        error_log("supabase_get HTTP $httpCode returned for $endpoint, body: $res");
+        $sup_errors[] = "Supabase HTTP {$httpCode}";
+        return false;
+    }
+
+    $json = json_decode($res, true);
+    if ($json === null && json_last_error() !== JSON_ERROR_NONE) {
+        error_log('JSON decode error: ' . json_last_error_msg() . ' body: ' . $res);
+        $sup_errors[] = 'Supabase 回傳非 JSON';
+        return false;
+    }
+
+    return $json;
+}
+
+// 取得 users 筆數
+$users_data = supabase_get('users?select=id'); // 只抓 id
+$userCount = is_array($users_data) ? count($users_data) : '—';
+
+// 取得隨機 5 筆 evaluation
+$evals = supabase_get('evaluation?select=*&order=random()&limit=5');
+
+// 供頁面錯誤顯示（除錯用）
+if (!empty($sup_errors)) {
+    // 不要直接 echo 以免在 HTML 上方輸出造成 layout、headers 問題
+    // 錯誤寫到伺服器 log，或在頁面特定位置輸出 $sup_errors
+    error_log('Supabase errors: ' . implode(' | ', $sup_errors));
+}
 ?>
+
 <!DOCTYPE HTML>
 <!--
     Ion by TEMPLATED
@@ -578,6 +620,7 @@
 
 
 </html>
+
 
 
 
