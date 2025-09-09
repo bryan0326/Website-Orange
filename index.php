@@ -11,7 +11,7 @@ $sup_ok = true;
 $sup_errors = [];
 
 // 簡易檢查
-if (!$supabase_url || !$supabase_key) {
+if (!$supabaseUrl || !$supabaseKey) {
     $sup_ok = false;
     $sup_errors[] = 'Supabase 環境變數未設定（SUPABASE_URL / SUPABASE_ANON_KEY）。';
     // 不用 die()，只記錄，讓頁面可以繼續載入（顯示友善訊息）
@@ -69,6 +69,7 @@ $userCount = is_array($users_data) ? count($users_data) : '—';
 
 // 取得隨機 5 筆 evaluation
 $evals = supabase_get('evaluation?select=*&order=random()&limit=5');
+$evaluationCount = is_array($eval_data) ? count($eval_data) : 0;
 
 // 供頁面錯誤顯示（除錯用）
 if (!empty($sup_errors)) {
@@ -620,6 +621,7 @@ if (!empty($sup_errors)) {
 
 
 </html>
+
 
 
 
