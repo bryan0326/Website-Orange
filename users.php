@@ -26,7 +26,7 @@ function supabaseSelect($table, $filters = []) {
     global $supabaseUrl, $supabaseKey;
 
     $query = http_build_query($filters);
-    $url = $supabaseUrl . "/rest/v1/" . $table . ($query ? "?" . $query : "");
+    $url = $supabaseUrl . "/" . $table . ($query ? "?" . $query : "");
 
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -556,6 +556,7 @@ if (isset($_POST['submit-btn'])) {
 
 
 </html>
+
 
 
 
