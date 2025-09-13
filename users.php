@@ -79,6 +79,8 @@ if (isset($_POST['submit-btn'])) {
     }
 
     echo '<script>window.location.hash = "myForm2";</script>';
+    echo "<pre>DEBUG: $url</pre>";
+
 }
 ?>
 
@@ -548,6 +550,7 @@ if (isset($_POST['submit-btn'])) {
 
 
 </html>
+
 
 
 
