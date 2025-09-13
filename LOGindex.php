@@ -457,10 +457,10 @@
             // 查詢區塊
             if ($_SERVER["REQUEST_METHOD"] == "GET") {
                 if (isset($_GET['teacher']) && !empty($_GET['teacher'])) {
-                    $teacher = urlencode($_GET['teacher']);
+                    $teacher = $_GET['teacher'];
                     $api_url = $supabase_url . "/rest/v1/evaluation?teacher=eq.$teacher&select=*";
                 } elseif (isset($_GET['course']) && !empty($_GET['course'])) {
-                    $course = urlencode($_GET['course']);
+                    $course = $_GET['course'];
                     $api_url = $supabase_url . "/rest/v1/evaluation?course_name=eq.$course&select=*";
                 }
 
@@ -612,4 +612,5 @@
 
 
 </html>
+
 
