@@ -23,10 +23,11 @@ $userName = '';
 
 // 通用查詢 function
 function supabaseSelect($table, $filters = []) {
+    // 確保這裡的變數名稱與您的實際設定檔相符
     global $supabaseUrl, $supabaseKey;
 
     $query = http_build_query($filters);
-    $url = $supabaseUrl . "/" . $table . ($query ? "?" . $query : "");
+    $url = $supabaseUrl . "/rest/v1/" . $table . ($query ? "?" . $query : "");
 
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -48,7 +49,7 @@ function supabaseSelect($table, $filters = []) {
 // 獲取登入的使用者名稱
 $userName = '';
 if (isset($_SESSION['user_name']) && !empty($_SESSION['user_name'])) {
-    $name = $_SESSION['user_name'];
+    $name = trim($_SESSION['user_name']);
 
     // 查詢 users 表
     $result = supabaseSelect("users", ["name" => "eq." . $name]);
@@ -64,10 +65,10 @@ if (isset($_POST['submit-btn'])) {
     $teacher = trim($_POST['teacher']);
     
     // 查詢 course 表
-    // 使用 ilike 進行不區分大小寫的模糊比對，並直接傳入字串
+    // 使用 ilike.%關鍵字% 進行不區分大小寫的模糊比對
     $result = supabaseSelect("course", [
-        "course_name" => "ilike." . $course_name,
-        "teacher" => "ilike." . $teacher
+        "course_name" => "ilike.%" . $course_name . "%",
+        "teacher" => "ilike.%" . $teacher . "%"
     ]);
     
     // 檢查回傳的 "data" 陣列是否非空
@@ -83,9 +84,7 @@ if (isset($_POST['submit-btn'])) {
     }
 
     echo '<script>window.location.hash = "myForm2";</script>';
-    echo "<pre>DEBUG: " . $result["url"] . "</pre>";
 }
-
 ?>
 
 <!DOCTYPE HTML>
@@ -554,6 +553,7 @@ if (isset($_POST['submit-btn'])) {
 
 
 </html>
+
 
 
 
