@@ -23,7 +23,6 @@ $userName = '';
 
 // 通用查詢 function
 function supabaseSelect($table, $filters = []) {
-    // 確保這裡的變數名稱與您的實際設定檔相符
     global $supabaseUrl, $supabaseKey;
 
     $query = http_build_query($filters);
@@ -42,7 +41,8 @@ function supabaseSelect($table, $filters = []) {
 
     return [
         "data" => json_decode($response, true),
-        "url" => $url
+        "url" => $url,
+        "raw_response" => $response // 新增：回傳原始 API 回應內容
     ];
 }
 
@@ -65,7 +65,7 @@ if (isset($_POST['submit-btn'])) {
     $teacher = trim($_POST['teacher']);
     
     // 查詢 course 表
-    // 使用 ilike.%關鍵字% 進行不區分大小寫的模糊比對
+    // 使用 ilike.%關鍵字% 進行不分大小寫的模糊比對
     $result = supabaseSelect("course", [
         "course_name" => "ilike.%" . $course_name . "%",
         "teacher" => "ilike.%" . $teacher . "%"
@@ -84,7 +84,10 @@ if (isset($_POST['submit-btn'])) {
     }
 
     echo '<script>window.location.hash = "myForm2";</script>';
+    echo "<pre>DEBUG URL: " . $result["url"] . "</pre>";
+    echo "<pre>DEBUG RAW RESPONSE: " . $result["raw_response"] . "</pre>"; // 新增：顯示原始回傳內容
 }
+
 ?>
 
 <!DOCTYPE HTML>
@@ -553,6 +556,7 @@ if (isset($_POST['submit-btn'])) {
 
 
 </html>
+
 
 
 
