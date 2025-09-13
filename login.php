@@ -7,7 +7,7 @@ $supabaseKey = getenv('SUPABASE_ANON_KEY'); // Supabase anon key
 // Google OAuth 2.0 參數
 $clientId = getenv('GOOGLE_CLIENT_ID');
 $clientSecret = getenv('GOOGLE_CLIENT_SECRET');
-$redirectUri = "https://orange66.000webhostapp.com/orange/google-callback.php";
+$redirectUri = "https://orange-xvxz.onrender.com/google-callback.php";
 
 // 判斷表單提交類型
 if (isset($_POST["submit-btn"])) {
@@ -93,3 +93,4 @@ function validateGoogleAccount() {
 </form>
 </body>
 </html>
+
