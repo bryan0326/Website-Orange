@@ -4,7 +4,7 @@ session_start();
 // Google OAuth 2.0 驗證參數
 $clientId = getenv('GOOGLE_CLIENT_ID'); // 用戶端 ID
 $clientSecret = getenv('GOOGLE_CLIENT_SECRET'); // 客戶端密碼
-$redirectUri = "https://orange66.000webhostapp.com/orange/google-callback.php"; // 回調 URI
+$redirectUri = "https://orange-xvxz.onrender.com/orange/google-callback.php"; // 回調 URI 
 
 // Supabase 設定
 $SUPABASE_URL = getenv('SUPABASE_URL');
@@ -49,7 +49,7 @@ if (isset($_GET['code'])) {
             echo "無法取得使用者資訊";
         }
     } else {
-        echo "無法獲取token。";
+        echo "無法獲取token：" . htmlspecialchars($tokenResult);
     }
 } else {
     echo "缺少授權碼。";
