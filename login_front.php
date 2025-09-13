@@ -44,17 +44,22 @@
             <img src="images/orange.png" width="200" height="200">
             <aside>
                 <!--  表單送到 login.php，驗證 Supabase -->
+                <!-- 一般登入 -->
                 <form method="post" action="login.php">
-                    <label for="username" style="font-size: 18px; font-weight: bold; color: #8b4513;">帳號</label>
-                    <input type="text" id="username" name="username" required
-                        style="margin-bottom: 20px; width: 100%; color: black;" placeholder="你的帳號">
+                    <label for="username">帳號</label>
+                    <input type="text" id="username" name="username" required placeholder="你的帳號">
                     
-                    <label for="password" style="font-size: 18px; font-weight: bold; color: #8b4513;">密碼</label>
-                    <input type="password" id="password" name="password" required
-                        style="margin-bottom: 30px; width: 100%; color: black;" placeholder="你的密碼">
+                    <label for="password">密碼</label>
+                    <input type="password" id="password" name="password" required placeholder="你的密碼">
                     
                     <input type="submit" name="submit-btn" value="登入"
-                        style="width: 100%; background-color:#8b4513; color:white; font-weight:bold; padding:10px; border:none; border-radius:5px;">
+                           style="width: 100%; background-color:#8b4513; color:white;">
+                </form>
+            
+                <!-- Google 登入 -->
+                <form method="post" action="login.php" style="margin-top: 20px;">
+                    <input type="submit" name="google-submit" value="使用 Google 登入"
+                           style="width: 100%; background-color:#db4437; color:white;">
                 </form>
             </aside>
         </div>
@@ -68,3 +73,4 @@
     </footer>
 </body>
 </html>
+
