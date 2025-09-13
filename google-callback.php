@@ -4,7 +4,7 @@ session_start();
 // Google OAuth 2.0 驗證參數
 $clientId = getenv('GOOGLE_CLIENT_ID'); // 用戶端 ID
 $clientSecret = getenv('GOOGLE_CLIENT_SECRET'); // 客戶端密碼
-$redirectUri = "https://orange-xvxz.onrender.com/orange/google-callback.php"; // 回調 URI 
+$redirectUri = "https://orange-xvxz.onrender.com/google-callback.php"; // 回調 URI 
 
 // Supabase 設定
 $SUPABASE_URL = getenv('SUPABASE_URL');
@@ -106,3 +106,4 @@ function handleUserInfo($userInfo, $SUPABASE_URL, $SUPABASE_ANON_KEY) {
 <p>正在處理登入，請稍候...</p>
 </body>
 </html>
+
