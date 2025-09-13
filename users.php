@@ -39,7 +39,10 @@ function supabaseSelect($table, $filters = []) {
     $response = curl_exec($ch);
     curl_close($ch);
 
-    return json_decode($response, true);
+    return [
+        "data" => json_decode($response, true),
+        "url" => $url
+    ];
 }
 
 // 獲取登入的使用者名稱
@@ -50,8 +53,8 @@ if (isset($_SESSION['user_name']) && !empty($_SESSION['user_name'])) {
     // 查詢 users 表
     $result = supabaseSelect("users", ["name" => "eq." . $name]);
 
-    if (!empty($result) && isset($result[0]['name'])) {
-        $userName = $result[0]['name'];
+    if (!empty($result["data"]) && isset($result["data"][0]['name'])) {
+        $userName = $result["data"][0]['name'];
     }
 }
 
@@ -66,22 +69,23 @@ if (isset($_POST['submit-btn'])) {
         "course_name" => "ilike." . $course_name,
         "teacher" => "ilike." . $teacher
     ]);
-
-    if (!empty($result) && isset($result[0])) {
-        $course_id = $result[0]['course_id'];
-        $course_credit = $result[0]['course_credit'];
-        $big_category = $result[0]['big_category'];
-        $small_category = $result[0]['small_category'];
-        $week = $result[0]['week'];
-        $section_class = $result[0]['section_class'];
-        $classroom = $result[0]['classroom'];
-        $campus = $result[0]['campus'];
+    
+    // 檢查回傳的 "data" 陣列是否非空
+    if (!empty($result["data"]) && isset($result["data"][0])) {
+        $course_id = $result["data"][0]['course_id'];
+        $course_credit = $result["data"][0]['course_credit'];
+        $big_category = $result["data"][0]['big_category'];
+        $small_category = $result["data"][0]['small_category'];
+        $week = $result["data"][0]['week'];
+        $section_class = $result["data"][0]['section_class'];
+        $classroom = $result["data"][0]['classroom'];
+        $campus = $result["data"][0]['campus'];
     }
 
     echo '<script>window.location.hash = "myForm2";</script>';
-    echo "<pre>DEBUG: $url</pre>";
-
+    echo "<pre>DEBUG: " . $result["url"] . "</pre>";
 }
+
 ?>
 
 <!DOCTYPE HTML>
@@ -550,6 +554,7 @@ if (isset($_POST['submit-btn'])) {
 
 
 </html>
+
 
 
 
