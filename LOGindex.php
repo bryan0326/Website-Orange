@@ -486,7 +486,7 @@ setTimeout(function () {
 
                     $results = json_decode($response, true);
 
-                    if ($results && count($results) > 0) {
+                    if ($results && is_array($results) && count($results) > 0) {
                         foreach ($results as $row) {
                             echo '<div class="evaluation-block">';
                             echo "<p class = 'scroll'><strong>課程類別 :</strong> <span class='pfont'>" . htmlspecialchars($row['small_category']) . "</p>";
@@ -617,6 +617,7 @@ setTimeout(function () {
 
 
 </html>
+
 
 
 
