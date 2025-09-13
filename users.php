@@ -8,6 +8,19 @@ if (session_status() === PHP_SESSION_NONE) {
 $supabaseUrl = "https://YOUR_PROJECT.supabase.co/rest/v1";
 $supabaseKey = "YOUR_SUPABASE_ANON_KEY";
 
+// 初始化所有變數以避免 Undefined variable 警告
+$course_id = null;
+$course_name = null;
+$teacher = null;
+$course_credit = null;
+$big_category = null;
+$small_category = null;
+$week = null;
+$section_class = null;
+$classroom = null;
+$campus = null;
+$userName = '';
+
 // 通用查詢 function
 function supabaseSelect($table, $filters = []) {
     global $supabaseUrl, $supabaseKey;
@@ -534,3 +547,4 @@ if (isset($_POST['submit-btn'])) {
 
 
 </html>
+
