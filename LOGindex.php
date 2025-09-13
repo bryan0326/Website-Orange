@@ -23,6 +23,11 @@
         <link rel="stylesheet" href="css/style-xlarge.css">
     </noscript>
 </head>
+<script>
+setTimeout(function () {
+    document.getElementById("preloader").style.display = "none";
+}, 3000);
+</script>
 
 <body id="top">
     <!--preloader-->
@@ -612,5 +617,6 @@
 
 
 </html>
+
 
 
