@@ -612,7 +612,7 @@ if (!empty($sup_errors)) {
     <!--preloader-->
     <script>
 
-        document.addEventListener("DOMContentLoaded", function () {
+        window.addEventListener("load", function () {
             // 延遲 1 秒 (1000 毫秒)
             setTimeout(function () {
                 // 延遲後隱藏 preloader
@@ -627,6 +627,7 @@ if (!empty($sup_errors)) {
 
 
 </html>
+
 
 
 
