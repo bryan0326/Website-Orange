@@ -61,10 +61,10 @@ if (isset($_POST['submit-btn'])) {
     $teacher = trim($_POST['teacher']);
     
     // 查詢 course 表
-    // 使用 urlencode() 確保中文字元被正確編碼，以供 API 查詢
+    // 使用 ilike 進行不區分大小寫的模糊比對，並直接傳入字串
     $result = supabaseSelect("course", [
-        "course_name" => "eq." . urlencode($course_name),
-        "teacher" => "eq." . urlencode($teacher)
+        "course_name" => "ilike." . $course_name,
+        "teacher" => "ilike." . $teacher
     ]);
 
     if (!empty($result) && isset($result[0])) {
@@ -548,5 +548,6 @@ if (isset($_POST['submit-btn'])) {
 
 
 </html>
+
 
 
