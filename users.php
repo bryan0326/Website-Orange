@@ -57,13 +57,14 @@ if (isset($_SESSION['user_name']) && !empty($_SESSION['user_name'])) {
 
 // 檢查表單是否提交
 if (isset($_POST['submit-btn'])) {
-    $course_name = $_POST['course_name'];
-    $teacher = $_POST['teacher'];
-
+    $course_name = trim($_POST['course_name']);
+    $teacher = trim($_POST['teacher']);
+    
     // 查詢 course 表
+    // 使用 urlencode() 確保中文字元被正確編碼，以供 API 查詢
     $result = supabaseSelect("course", [
-        "course_name" => "eq." . $course_name,
-        "teacher" => "eq." . $teacher
+        "course_name" => "eq." . urlencode($course_name),
+        "teacher" => "eq." . urlencode($teacher)
     ]);
 
     if (!empty($result) && isset($result[0])) {
@@ -547,4 +548,5 @@ if (isset($_POST['submit-btn'])) {
 
 
 </html>
+
 
