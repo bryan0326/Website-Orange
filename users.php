@@ -85,8 +85,8 @@ if (isset($_POST['submit-btn'])) {
     }
 
     echo '<script>window.location.hash = "myForm2";</script>';
-    echo "<pre>DEBUG URL: " . $result["url"] . "</pre>";
-    echo "<pre>DEBUG RAW RESPONSE: " . $result["raw_response"] . "</pre>"; // 新增：顯示原始回傳內容
+    //echo "<pre>DEBUG URL: " . $result["url"] . "</pre>";
+    //echo "<pre>DEBUG RAW RESPONSE: " . $result["raw_response"] . "</pre>"; // 新增：顯示原始回傳內容
 }
 
 ?>
