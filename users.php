@@ -5,8 +5,8 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Supabase 設定
-$supabaseUrl = "https://YOUR_PROJECT.supabase.co/rest/v1";
-$supabaseKey = "YOUR_SUPABASE_ANON_KEY";
+$supabaseUrl = getenv('SUPABASE_URL');
+$supabaseKey = getenv('SUPABASE_ANON_KEY');
 
 // 初始化所有變數以避免 Undefined variable 警告
 $course_id = null;
@@ -22,11 +22,12 @@ $campus = null;
 $userName = '';
 
 // 通用查詢 function
-function supabaseSelect($table, $filters = []) {
+function supabaseSelect($table, $filters = [])
+{
     global $supabaseUrl, $supabaseKey;
 
     $query = http_build_query($filters);
-    $url = $supabaseUrl . "/" . $table . ($query ? "?" . $query : "");
+    $url = $supabaseUrl . "/rest/v1/" . $table . ($query ? "?" . $query : "");
 
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -63,14 +64,14 @@ if (isset($_SESSION['user_name']) && !empty($_SESSION['user_name'])) {
 if (isset($_POST['submit-btn'])) {
     $course_name = trim($_POST['course_name']);
     $teacher = trim($_POST['teacher']);
-    
+
     // 查詢 course 表
     // 使用 ilike.%關鍵字% 進行不分大小寫的模糊比對
     $result = supabaseSelect("course", [
         "course_name" => "ilike.%" . $course_name . "%",
         "teacher" => "ilike.%" . $teacher . "%"
     ]);
-    
+
     // 檢查回傳的 "data" 陣列是否非空
     if (!empty($result["data"]) && isset($result["data"][0])) {
         $course_id = $result["data"][0]['course_id'];
@@ -101,7 +102,7 @@ if (isset($_POST['submit-btn'])) {
 <head>
     <title>早安美吱城</title>
     <link rel="icon" type="image/png" href="images/orange.png">
-    
+
     <meta charset="UTF-8">
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="description" content="">
@@ -314,10 +315,7 @@ if (isset($_POST['submit-btn'])) {
             <div class="row">
                 <div class="4u">
                     <section class="special box">
-                        <lord-icon
-                            src="https://cdn.lordicon.com/xzalkbkz.json"
-                            trigger="loop"
-                            delay="2500"
+                        <lord-icon src="https://cdn.lordicon.com/xzalkbkz.json" trigger="loop" delay="2500"
                             style="width:160px;height:160px">
                         </lord-icon>
                         <h3>更改暱稱</h3>
@@ -327,10 +325,7 @@ if (isset($_POST['submit-btn'])) {
                 </div>
                 <div class="4u">
                     <section class="special box">
-                        <lord-icon
-                            src="https://cdn.lordicon.com/wzrwaorf.json"
-                            trigger="loop"
-                            delay="1500"
+                        <lord-icon src="https://cdn.lordicon.com/wzrwaorf.json" trigger="loop" delay="1500"
                             style="width:160px;height:160px">
                         </lord-icon>
                         <h3>評價課程</h3>
@@ -339,10 +334,7 @@ if (isset($_POST['submit-btn'])) {
                 </div>
                 <div class="4u">
                     <section class="special box">
-                        <lord-icon
-                            src="https://cdn.lordicon.com/unukghxb.json"
-                            trigger="loop"
-                            delay="2000"
+                        <lord-icon src="https://cdn.lordicon.com/unukghxb.json" trigger="loop" delay="2000"
                             style="width:160px;height:160px">
                         </lord-icon>
                         <h3>搜尋</h3>
@@ -556,11 +548,3 @@ if (isset($_POST['submit-btn'])) {
 
 
 </html>
-
-
-
-
-
-
-
-

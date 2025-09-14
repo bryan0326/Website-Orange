@@ -77,6 +77,7 @@
             height: 100px;
             /* 調整 GIF 高度 */
         }
+
         #header nav>ul>li a.up {
             position: relative;
         }
@@ -127,12 +128,22 @@
         }
 
         .container {
-            background-color: #ccc;
-            /* 背景颜色 */
-            padding: 15px;
-            /* 在内容和边框之间添加 20px 的内边距，你可以根据需要调整这个值 */
-            border-radius: 8px;
-            /* 圆弧形边框 */
+            background-color: #f2f2f2;
+            /* 淺灰色背景 */
+            width: 100%;
+            /* 滿版覆蓋 */
+            padding: 40px 20px;
+            /* 上下左右內間距 */
+            border-radius: 0;
+            /* 去掉圓角，讓它像一個大區塊 */
+            display: flex;
+            /* 水平排列 */
+            justify-content: space-around;
+            flex-wrap: wrap;
+            /* 小螢幕換行 */
+            gap: 20px;
+            /* 評價區塊之間的間距 */
+            box-sizing: border-box;
         }
 
         /* PHP Evaluation Block Styles */
@@ -291,191 +302,196 @@
                 <!--這邊是課程評價結果-->
                 <?php
 
-$supabase_url = getenv('SUPABASE_URL');
-$supabase_anon_key = getenv('SUPABASE_ANON_KEY');
+                $supabase_url = getenv('SUPABASE_URL');
+                $supabase_anon_key = getenv('SUPABASE_ANON_KEY');
 
-// 檢查環境變數是否設定
-if (!$supabase_url || !$supabase_anon_key) {
-    die("Supabase API URL 或 Key 未設定。請確保您已在 Render 環境變數中設定 SUPABASE_URL 和 SUPABASE_ANON_KEY。");
-}
-
-// 建立 cURL 請求
-$ch = curl_init();
-
-// 設定 API 網址，用於獲取 evaluation 表格的所有資料
-$api_url = $supabase_url . '/rest/v1/evaluation?select=*';
-
-curl_setopt($ch, CURLOPT_URL, $api_url);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    'apikey: ' . $supabase_anon_key,
-    'Authorization: Bearer ' . $supabase_anon_key,
-    'Content-Type: application/json',
-]);
-
-// 執行 cURL 請求並獲取回應
-$response = curl_exec($ch);
-
-// 檢查是否有 cURL 錯誤
-if (curl_errno($ch)) {
-    die('cURL 錯誤: ' . curl_error($ch));
-}
-
-// 關閉 cURL 資源
-curl_close($ch);
-
-// 將 JSON 回應轉換為 PHP 陣列
-$evaluations = json_decode($response, true);
-
-?>
-
-<section id="main" class="wrapper style1">
-    <header class="major">
-        <h2><strong>照過來照過來</strong></h2>
-        <p><strong>美吱城幫你整理好各種課程的評價了~ 準備好了就往下看吧!!!</strong></p>
-    </header>
-    <div class="container">
-        <div>
-            <?php
-            // 檢查是否有資料
-            if ($evaluations && count($evaluations) > 0) {
-                foreach ($evaluations as $row) {
-                    echo '<div class="evaluation-block">';
-                    echo "<p class='scroll'><strong>課程類別 :</strong> <span class='pfont'>" . htmlspecialchars($row['small_category']) . "</p>";
-                    echo "<p><strong>課程名稱 :</strong> <span class='pfont'>" . htmlspecialchars($row['course_name']) . "</span></p>";
-                    echo "<p><strong>老師 :</strong> <span class='pfont'>" . htmlspecialchars($row['teacher']) . "</span></p>";
-                    echo '<div class="full-content" style="display: none;">';
-                    echo "<p><strong>Thoughts:</strong> " . htmlspecialchars($row['thoughts']) . "</p>";
-
-                    // 評價分數的圖片顯示
-                    echo "<p><strong>整體評價:</strong> </p>";
-                    if (isset($row['all_evaluation'])) {
-                        echo "<img src='images/" . htmlspecialchars($row['all_evaluation']) . "_star.png'>";
-                    }
-
-                    echo "<p><strong>給分甜度:</strong> </p>";
-                    if (isset($row['credit_sweet'])) {
-                        echo "<img src='images/" . htmlspecialchars($row['credit_sweet']) . "_star.png'>";
-                    }
-
-                    echo "<p><strong>含金量:</strong> </p>";
-                    if (isset($row['learning'])) {
-                        echo "<img src='images/" . htmlspecialchars($row['learning']) . "_star.png'>";
-                    }
-
-                    echo "<p><strong>老師78程度:</strong> </p>";
-                    if (isset($row['evilking_level'])) {
-                        echo "<img src='images/" . htmlspecialchars($row['evilking_level']) . "_star.png'>";
-                    }
-                    
-                    echo '</div>';
-                    echo '<button class="show-full-content">learn more</button>';
-                    echo '<button class="show-partial-content" style="display: none;">Show less</button>';
-                    echo '</div>';
-                }
-            } else {
-                echo "0 筆結果";
-            }
-            ?>
-        </div>
-    </div>
-</section>
-
-    <!-- Footer -->
-    <footer id="footer">
-        <ul class="icons">
-            <li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
-            <li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
-            <li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
-            <li><a href="#" class="icon brands fa-dribbble"><span class="label">Dribbble</span></a></li>
-            <li><a href="#" class="icon solid fa-envelope"><span class="label">Email</span></a></li>
-        </ul>
-        <ul class="copyright">
-            <li>© Copyright by 第14組</li>
-        </ul>
-    </footer>
-
-    <!---寫顯示完整內容的按鈕--->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            var showButtons = document.querySelectorAll(".show-full-content, .show-partial-content");
-
-            showButtons.forEach(function (button) {
-                button.addEventListener("click", function () {
-                    var evaluationBlock = button.closest(".evaluation-block");
-                    var fullContent = evaluationBlock.querySelector(".full-content");
-
-                    if (fullContent && button.classList.contains("show-full-content")) {
-                        // 在顯示完整內容之前儲存原始高度
-                        var originalHeight = evaluationBlock.offsetHeight;
-                        fullContent.style.display = "block";
-                        button.style.display = "none";
-                        evaluationBlock.querySelector(".show-partial-content").style.display = "inline-block";
-
-                        // 計算並調整 div 高度以容納完整內容
-                        var newHeight = originalHeight + fullContent.offsetHeight;
-                        evaluationBlock.style.height = newHeight + "px";
-
-                        // 滑動到該筆資料的 div 最上層，停在頂部一點
-                        smoothScrollTo(evaluationBlock.offsetTop - 40, 300); // offsetTop可以調整上滑距離  調整後面數字以控制往上滑的時間
-                    } else if (button.classList.contains("show-partial-content")) {
-                        // 隱藏完整內容並顯示「繼續閱讀」按鈕
-                        fullContent.style.display = "none";
-                        button.style.display = "none";
-                        evaluationBlock.querySelector(".show-full-content").style.display = "inline-block";
-
-                        // 恢復原始 div 高度
-                        evaluationBlock.style.height = "260px"; // 這裡替換為原本的高度，您需要使用原本的高度值
-
-                        // 平滑捲動回到 div 的頂端
-                        smoothScrollTo(evaluationBlock.offsetTop - 40, 300);
-                    }
-                });
-            });
-
-            function smoothScrollTo(targetPosition, duration) {
-                var startPosition = window.scrollY || window.pageYOffset,
-                    distance = targetPosition - startPosition,
-                    startTime = null;
-
-                function animation(currentTime) {
-                    if (startTime === null) startTime = currentTime;
-                    var timeElapsed = currentTime - startTime;
-                    var progress = Math.min(timeElapsed / duration, 1);
-                    var ease = easeInOutQuad(progress);
-
-                    window.scrollTo(0, startPosition + distance * ease);
-
-                    if (timeElapsed < duration) {
-                        requestAnimationFrame(animation);
-                    }
+                // 檢查環境變數是否設定
+                if (!$supabase_url || !$supabase_anon_key) {
+                    die("Supabase API URL 或 Key 未設定");
                 }
 
-                function easeInOutQuad(t) {
-                    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+                // 建立 cURL 請求
+                $ch = curl_init();
+
+                // 設定 API 網址，用於獲取 evaluation 表格的所有資料
+                $api_url = $supabase_url . '/rest/v1/evaluation?select=*';
+
+                curl_setopt($ch, CURLOPT_URL, $api_url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'apikey: ' . $supabase_anon_key,
+                    'Authorization: Bearer ' . $supabase_anon_key,
+                    'Content-Type: application/json',
+                ]);
+
+                // 執行 cURL 請求並獲取回應
+                $response = curl_exec($ch);
+
+                // 檢查是否有 cURL 錯誤
+                if (curl_errno($ch)) {
+                    die('cURL 錯誤: ' . curl_error($ch));
                 }
 
-                requestAnimationFrame(animation);
-            }
-        });
+                // 關閉 cURL 資源
+                curl_close($ch);
+
+                // 將 JSON 回應轉換為 PHP 陣列
+                $evaluations = json_decode($response, true);
+
+                // 建立數字到英文單字的對應陣列
+                $num_to_word = [
+                    '1' => 'one',
+                    '2' => 'two',
+                    '3' => 'three',
+                    '4' => 'four',
+                    '5' => 'five'
+                ];
+
+                ?>
+
+                <section id="main" class="wrapper style1">
+                    <div class="container">
+                        <div>
+                            <?php
+                            // 檢查是否有資料
+                            if ($evaluations && count($evaluations) > 0) {
+                                foreach ($evaluations as $row) {
+                                    echo '<div class="evaluation-block">';
+                                    echo "<p class='scroll'><strong>課程類別 :</strong> <span class='pfont'>" . htmlspecialchars($row['small_category']) . "</p>";
+                                    echo "<p><strong>課程名稱 :</strong> <span class='pfont'>" . htmlspecialchars($row['course_name']) . "</span></p>";
+                                    echo "<p><strong>老師 :</strong> <span class='pfont'>" . htmlspecialchars($row['teacher']) . "</span></p>";
+                                    echo '<div class="full-content" style="display: none;">';
+                                    echo "<p><strong>Thoughts:</strong> " . htmlspecialchars($row['thoughts']) . "</p>";
+
+                                    // 評價分數的圖片顯示
+                                    echo "<p><strong>整體評價:</strong> </p>";
+                                    if (isset($row['all_evaluation'])) {
+                                        echo "<img src='images/" . htmlspecialchars($num_to_word[$row['all_evaluation']]) . "_star.png'>";
+                                    }
+
+                                    echo "<p><strong>給分甜度:</strong> </p>";
+                                    if (isset($row['credit_sweet'])) {
+                                        echo "<img src='images/" . htmlspecialchars($num_to_word[$row['credit_sweet']]) . "_star.png'>";
+                                    }
+
+                                    echo "<p><strong>含金量:</strong> </p>";
+                                    if (isset($row['learning'])) {
+                                        echo "<img src='images/" . htmlspecialchars($num_to_word[$row['learning']]) . "_star.png'>";
+                                    }
+
+                                    echo "<p><strong>老師78程度:</strong> </p>";
+                                    if (isset($row['evilking_level'])) {
+                                        echo "<img src='images/" . htmlspecialchars($num_to_word[$row['evilking_level']]) . "_star.png'>";
+                                    }
+
+                                    echo '</div>';
+                                    echo '<button class="show-full-content">learn more</button>';
+                                    echo '<button class="show-partial-content" style="display: none;">Show less</button>';
+                                    echo '</div>';
+                                }
+                            } else {
+                                echo "0 筆結果";
+                            }
+                            ?>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Footer -->
+                <footer id="footer">
+                    <ul class="icons">
+                        <li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
+                        <li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
+                        <li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
+                        <li><a href="#" class="icon brands fa-dribbble"><span class="label">Dribbble</span></a></li>
+                        <li><a href="#" class="icon solid fa-envelope"><span class="label">Email</span></a></li>
+                    </ul>
+                    <ul class="copyright">
+                        <li>© Copyright by 第14組</li>
+                    </ul>
+                </footer>
+
+                <!---寫顯示完整內容的按鈕--->
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        var showButtons = document.querySelectorAll(".show-full-content, .show-partial-content");
+
+                        showButtons.forEach(function (button) {
+                            button.addEventListener("click", function () {
+                                var evaluationBlock = button.closest(".evaluation-block");
+                                var fullContent = evaluationBlock.querySelector(".full-content");
+
+                                if (fullContent && button.classList.contains("show-full-content")) {
+                                    // 在顯示完整內容之前儲存原始高度
+                                    var originalHeight = evaluationBlock.offsetHeight;
+                                    fullContent.style.display = "block";
+                                    button.style.display = "none";
+                                    evaluationBlock.querySelector(".show-partial-content").style.display = "inline-block";
+
+                                    // 計算並調整 div 高度以容納完整內容
+                                    var newHeight = originalHeight + fullContent.offsetHeight;
+                                    evaluationBlock.style.height = newHeight + "px";
+
+                                    // 滑動到該筆資料的 div 最上層，停在頂部一點
+                                    smoothScrollTo(evaluationBlock.offsetTop - 40, 300); // offsetTop可以調整上滑距離  調整後面數字以控制往上滑的時間
+                                } else if (button.classList.contains("show-partial-content")) {
+                                    // 隱藏完整內容並顯示「繼續閱讀」按鈕
+                                    fullContent.style.display = "none";
+                                    button.style.display = "none";
+                                    evaluationBlock.querySelector(".show-full-content").style.display = "inline-block";
+
+                                    // 恢復原始 div 高度
+                                    evaluationBlock.style.height = "260px"; // 這裡替換為原本的高度，您需要使用原本的高度值
+
+                                    // 平滑捲動回到 div 的頂端
+                                    smoothScrollTo(evaluationBlock.offsetTop - 40, 300);
+                                }
+                            });
+                        });
+
+                        function smoothScrollTo(targetPosition, duration) {
+                            var startPosition = window.scrollY || window.pageYOffset,
+                                distance = targetPosition - startPosition,
+                                startTime = null;
+
+                            function animation(currentTime) {
+                                if (startTime === null) startTime = currentTime;
+                                var timeElapsed = currentTime - startTime;
+                                var progress = Math.min(timeElapsed / duration, 1);
+                                var ease = easeInOutQuad(progress);
+
+                                window.scrollTo(0, startPosition + distance * ease);
+
+                                if (timeElapsed < duration) {
+                                    requestAnimationFrame(animation);
+                                }
+                            }
+
+                            function easeInOutQuad(t) {
+                                return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+                            }
+
+                            requestAnimationFrame(animation);
+                        }
+                    });
 
 
-    </script>
+                </script>
 
-    <!--preloader-->
-    <script>
+                <!--preloader-->
+                <script>
 
-        document.addEventListener("DOMContentLoaded", function () {
-            // 延遲 1 秒 (1000 毫秒)
-            setTimeout(function () {
-                // 延遲後隱藏 preloader
-                var preloader = document.getElementById("preloader");
-                preloader.style.display = "none";
-            }, 1000);
-        });
+                    document.addEventListener("DOMContentLoaded", function () {
+                        // 延遲 1 秒 (1000 毫秒)
+                        setTimeout(function () {
+                            // 延遲後隱藏 preloader
+                            var preloader = document.getElementById("preloader");
+                            preloader.style.display = "none";
+                        }, 1000);
+                    });
 
 
-    </script>
+                </script>
 
 </body>
 

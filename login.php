@@ -7,7 +7,7 @@ $supabaseKey = getenv('SUPABASE_ANON_KEY'); // Supabase anon key
 // Google OAuth 2.0 參數
 $clientId = getenv('GOOGLE_CLIENT_ID');
 $clientSecret = getenv('GOOGLE_CLIENT_SECRET');
-$redirectUri = "https://orange-xvxz.onrender.com/google-callback.php";
+$redirectUri = getenv('GOOGLE_REDIRECT_URI');
 
 // 判斷表單提交類型
 if (isset($_POST["submit-btn"])) {
@@ -19,7 +19,8 @@ if (isset($_POST["submit-btn"])) {
 }
 
 // 一般登入（Supabase）
-function handleRegularLogin() {
+function handleRegularLogin()
+{
     global $supabaseUrl, $supabaseKey;
 
     $username = $_POST["username"] ?? '';
@@ -59,7 +60,8 @@ function handleRegularLogin() {
 }
 
 // Google 登入
-function validateGoogleAccount() {
+function validateGoogleAccount()
+{
     global $clientId, $redirectUri;
 
     $googleLoginUrl = "https://accounts.google.com/o/oauth2/auth?" .
@@ -74,23 +76,25 @@ function validateGoogleAccount() {
 ?>
 <!DOCTYPE html>
 <html>
+
 <head>
-<meta charset="utf-8" />
-<title>login.php</title>
-<link rel="icon" type="image/png" href="images/orange.png">
+    <meta charset="utf-8" />
+    <title>login.php</title>
+    <link rel="icon" type="image/png" href="images/orange.png">
 </head>
+
 <body>
-<form method="POST">
-    <h2>一般登入</h2>
-    <input type="text" name="username" placeholder="Email">
-    <input type="password" name="password" placeholder="Password">
-    <button type="submit" name="submit-btn">登入</button>
-</form>
+    <form method="POST">
+        <h2>一般登入</h2>
+        <input type="text" name="username" placeholder="Email">
+        <input type="password" name="password" placeholder="Password">
+        <button type="submit" name="submit-btn">登入</button>
+    </form>
 
-<form method="POST">
-    <h2>Google 登入</h2>
-    <button type="submit" name="google-submit">使用 Google 登入</button>
-</form>
+    <form method="POST">
+        <h2>Google 登入</h2>
+        <button type="submit" name="google-submit">使用 Google 登入</button>
+    </form>
 </body>
-</html>
 
+</html>

@@ -25,54 +25,54 @@
 	</noscript>
 	<style>
 		#preloader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #fff;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background-color: #fff;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			z-index: 1000;
+		}
 
-        .spinner {
-            width: 80px;
-            height: 80px;
-            animation: bounce 1s ease-in-out infinite;
-        }
+		.spinner {
+			width: 80px;
+			height: 80px;
+			animation: bounce 1s ease-in-out infinite;
+		}
 
-        @keyframes bounce {
+		@keyframes bounce {
 
-            0%,
-            20%,
-            50%,
-            80%,
-            100% {
-                transform: translateY(10px);
-            }
+			0%,
+			20%,
+			50%,
+			80%,
+			100% {
+				transform: translateY(10px);
+			}
 
-            40% {
-                transform: translateY(-30px);
-                /* 調整彈跳的高度，以符合您的需求 */
-            }
+			40% {
+				transform: translateY(-30px);
+				/* 調整彈跳的高度，以符合您的需求 */
+			}
 
-            60% {
-                transform: translateY(-15px);
-                /* 調整彈跳的高度，以符合您的需求 */
-            }
-        }
+			60% {
+				transform: translateY(-15px);
+				/* 調整彈跳的高度，以符合您的需求 */
+			}
+		}
 
-        .loadinggif {
-            margin-right: 10px;
-            /* 調整圖片之間的距離，可根據需要調整 */
-            width: 180px;
-            /* 調整 GIF 寬度 */
-            height: 100px;
-            /* 調整 GIF 高度 */
-        }
+		.loadinggif {
+			margin-right: 10px;
+			/* 調整圖片之間的距離，可根據需要調整 */
+			width: 180px;
+			/* 調整 GIF 寬度 */
+			height: 100px;
+			/* 調整 GIF 高度 */
+		}
 
 		#header nav>ul>li a.up {
 			position: relative;
@@ -285,10 +285,10 @@
 
 <body id="top">
 	<!--preloader-->
-    <div id="preloader">
-        <img src="images/orange.png" alt="Loading..." class="spinner">
-        <img src="images/loading.gif" class="loadinggif">
-    </div>
+	<div id="preloader">
+		<img src="images/orange.png" alt="Loading..." class="spinner">
+		<img src="images/loading.gif" class="loadinggif">
+	</div>
 
 	<!-- Header -->
 	<header id="header" class="skel-layers-fixed">
@@ -388,6 +388,7 @@
 		function submitFeedback() {
 			var form = document.getElementById("feedbackForm");
 			var formData = new FormData(form);
+			formData.append('created_at', new Date().toISOString());
 
 			fetch("feedback.php", {
 				method: "POST",
@@ -417,19 +418,19 @@
 	</script>
 
 	<!--preloader-->
-    <script>
+	<script>
 
-        document.addEventListener("DOMContentLoaded", function () {
-            // 延遲 1 秒 (1000 毫秒)
-            setTimeout(function () {
-                // 延遲後隱藏 preloader
-                var preloader = document.getElementById("preloader");
-                preloader.style.display = "none";
-            }, 1000);
-        });
+		document.addEventListener("DOMContentLoaded", function () {
+			// 延遲 1 秒 (1000 毫秒)
+			setTimeout(function () {
+				// 延遲後隱藏 preloader
+				var preloader = document.getElementById("preloader");
+				preloader.style.display = "none";
+			}, 1000);
+		});
 
 
-    </script>
+	</script>
 
 	</section><!-- Footer -->
 	<footer id="footer">

@@ -9,7 +9,7 @@
 <head>
     <title>早安美吱城_管理者</title>
     <link rel="icon" type="image/png" href="images/orange.png">
-    
+
     <meta charset="UTF-8">
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="description" content="">
@@ -352,10 +352,7 @@
             <div class="row">
                 <div class="4u">
                     <section class="special box">
-                        <lord-icon
-                            src="https://cdn.lordicon.com/xzalkbkz.json"
-                            trigger="loop"
-                            delay="2500"
+                        <lord-icon src="https://cdn.lordicon.com/xzalkbkz.json" trigger="loop" delay="2500"
                             style="width:160px;height:160px">
                         </lord-icon>
                         <h3>更改暱稱</h3>
@@ -365,10 +362,7 @@
                 </div>
                 <div class="4u">
                     <section class="special box">
-                        <lord-icon
-                            src="https://cdn.lordicon.com/wzrwaorf.json"
-                            trigger="loop"
-                            delay="1500"
+                        <lord-icon src="https://cdn.lordicon.com/wzrwaorf.json" trigger="loop" delay="1500"
                             style="width:160px;height:160px">
                         </lord-icon>
                         <h3>評價課程</h3>
@@ -377,10 +371,7 @@
                 </div>
                 <div class="4u">
                     <section class="special box">
-                        <lord-icon
-                            src="https://cdn.lordicon.com/unukghxb.json"
-                            trigger="loop"
-                            delay="2000"
+                        <lord-icon src="https://cdn.lordicon.com/unukghxb.json" trigger="loop" delay="2000"
                             style="width:160px;height:160px">
                         </lord-icon>
                         <h3>搜尋</h3>
@@ -393,151 +384,161 @@
 
     <!-- Two -->
     <section id="two" class="wrapper style2">
-    <header class="major">
-        <h2>意見回饋檢視表</h2>
-        <p>閱讀前，請確認你的小小心臟是否能接受酸民抨擊</p>
-    </header>
-    <div style="margin-left: 100px;">
-        <?php
-        // 讀環境變數 (在 cPanel/本地 .env 設定)
-        $supabaseUrl = getenv('SUPABASE_URL');
-        $supabaseKey = getenv('SUPABASE_ANON_KEY');
-
-        // 查詢 feedback 資料表
-        $ch = curl_init("$supabaseUrl/rest/v1/feedback?select=*");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "apikey: $supabaseKey",
-            "Authorization: Bearer $supabaseKey"
-        ]);
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        $feedbacks = json_decode($response, true);
-
-        if (!empty($feedbacks)) {
-            echo "<div style='display: flex; flex-wrap: wrap;'>";
-            foreach ($feedbacks as $row) {
-                echo "<div style='width: 30%; box-sizing: border-box; padding: 10px; margin: 5px; background-color: white; border: 1px solid #ccc; border-radius: 10px; height: auto;'>";
-                echo "<div>";
-                echo "<img src='images/orange.png' style='float: left; width: 40px; height: 40px; border-radius: 50%;'>";
-                echo "<div style='margin-left: 80px; margin-top: 5px; font-size: 16px; color: black;'>匿名小橘子</div><br>";
-                echo "</div>";
-
-                echo "<p style='color: black; margin-bottom: 5px;'><strong>評價:</strong></p>";
-                $rating = intval($row['rating']);
-                echo "<img src='images/{$rating}_star.png' width='230' height='50'>";
-                echo "<p style='color: black;'><strong>建議:</strong><br> " . htmlspecialchars($row['message']) . "</p>";
-                echo "<p style='margin-bottom: 5px; color: black;'><strong> 更新時間:</strong> " . $row['created_at'] . "</p>";
-                echo "</div>";
-            }
-            echo "</div>";
-        } else {
-            echo "0 筆結果";
-        }
-        ?>
-    </div>
-</section>
-
-<!-- Three -->
-<section id="three" class="wrapper style1">
-    <header class="major">
-        <h2>刪除課程評論</h2>
-        <p>刪除前，請先確認是否真的要刪除，否則將一去不復返</p>
-    </header>
-
-    <form style="float: left; width: 50%;" method="GET">
-        <div id="searchContainer">
-            <div id="categorySearch">
-                <h2 id="myForm">以課程名稱搜尋</h2>
-                <input type="text" id="searchInput" name="course" placeholder="例: 通識選修">
-                <button type="submit" name="search">搜 尋</button>
-            </div>
-        </div>
-    </form>
-
-    <form style="float: right; width: 50%;" method="GET">
-        <div id="searchContainer">
-            <div id="teacherSearch">
-                <h2 id="myForm">以老師搜尋</h2>
-                <input type="text" id="searchInput" name="teacher" placeholder="例: 許政穆">
-                <button type="submit" name="search">搜 尋</button>
-            </div>
-        </div>
-        <br>
-    </form>
-
-    <br><br>
-    <header class="major">
-        <h2>搜尋結果</h2>
-    </header>
-    <div class="coursecontainer">
-        <div>
+        <header class="major">
+            <h2>意見回饋檢視表</h2>
+            <p>閱讀前，請確認你的小小心臟是否能接受酸民抨擊</p>
+        </header>
+        <div style="margin-left: 100px;">
             <?php
-            $query = "";
-            if (isset($_GET['teacher']) && !empty($_GET['teacher'])) {
-                $teacher = urlencode($_GET['teacher']);
-                $query = "teacher=eq.$teacher";
-            } elseif (isset($_GET['course']) && !empty($_GET['course'])) {
-                $course = urlencode($_GET['course']);
-                $query = "course_name=eq.$course";
-            }
+            // 讀環境變數 (在 cPanel/本地 .env 設定)
+            $supabaseUrl = getenv('SUPABASE_URL');
+            $supabaseKey = getenv('SUPABASE_ANON_KEY');
 
-            if ($query) {
-                $ch = curl_init("$supabaseUrl/rest/v1/evaluation?select=*&$query");
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                    "apikey: $supabaseKey",
-                    "Authorization: Bearer $supabaseKey"
-                ]);
-                $response = curl_exec($ch);
-                curl_close($ch);
+            // 查詢 feedback 資料表
+            $ch = curl_init("$supabaseUrl/rest/v1/feedback?select=*");
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                "apikey: $supabaseKey",
+                "Authorization: Bearer $supabaseKey"
+            ]);
+            $response = curl_exec($ch);
+            curl_close($ch);
 
-                $evaluations = json_decode($response, true);
+            $feedbacks = json_decode($response, true);
 
-                if (!empty($evaluations)) {
-                    foreach ($evaluations as $row) {
-                        echo '<div class="evaluation-block">';
-                        echo "<p class='scroll'><strong>課程類別 :</strong> <span class='pfont'>" . htmlspecialchars($row['small_category']) . "</span></p>";
-                        echo "<p><strong>課程名稱 :</strong> <span class='pfont'>" . htmlspecialchars($row['course_name']) . "</span></p>";
-                        echo "<p><strong>老師 :</strong> <span class='pfont'>" . htmlspecialchars($row['teacher']) . "</span></p>";
+            // 建立數字到英文單字的對應陣列
+            $num_to_word = [
+                '1' => 'one',
+                '2' => 'two',
+                '3' => 'three',
+                '4' => 'four',
+                '5' => 'five'
+            ];
 
-                        echo '<div class="full-content" style="display: none;">';
-                        echo "<p><strong>Thoughts:</strong> " . htmlspecialchars($row['thoughts']) . "</p>";
+            if (!empty($feedbacks)) {
+                echo "<div style='display: flex; flex-wrap: wrap;'>";
+                foreach ($feedbacks as $row) {
+                    echo "<div style='width: 30%; box-sizing: border-box; padding: 10px; margin: 5px; background-color: white; border: 1px solid #ccc; border-radius: 10px; height: auto;'>";
+                    echo "<div>";
+                    echo "<img src='images/orange.png' style='float: left; width: 40px; height: 40px; border-radius: 50%;'>";
+                    echo "<div style='margin-left: 80px; margin-top: 5px; font-size: 16px; color: black;'>匿名小橘子</div><br>";
+                    echo "</div>";
 
-                        // 評分區塊 (動態顯示星星)
-                        $fields = [
-                            "all_evaluation" => "整體評價",
-                            "credit_sweet"   => "給分甜度",
-                            "learning"       => "含金量",
-                            "evilking_level" => "老師78程度"
-                        ];
-                        foreach ($fields as $field => $label) {
-                            $stars = intval($row[$field]);
-                            echo "<p><strong>$label:</strong></p>";
-                            echo "<img src='images/{$stars}_star.png'>";
-                        }
-                        echo '</div>';
-
-                        echo '<button class="show-full-content">learn more</button>';
-                        echo '<button class="show-partial-content" style="display: none;">Show less</button>';
-
-                        // 刪除按鈕 (打 Supabase DELETE API)
-                        echo '<form method="post" action="delete_evaluation.php">';
-                        echo '<input type="hidden" name="evaluation_id" value="' . $row['evaluation_id'] . '">';
-                        echo '<button type="submit" class="delete-button">刪除</button>';
-                        echo '</form>';
-                        echo '</div>';
-                    }
-                } else {
-                    echo "No results found.";
+                    echo "<p style='color: black; margin-bottom: 5px;'><strong>評價:</strong></p>";
+                    $rating = intval($row['rating']);
+                    echo "<img src='images/{$num_to_word[$rating]}_star.png' width='230' height='50'>";
+                    echo "<p style='color: black;'><strong>建議:</strong><br> " . htmlspecialchars($row['message']) . "</p>";
+                    echo "<p style='margin-bottom: 5px; color: black;'><strong> 更新時間:</strong> " . $row['created_at'] . "</p>";
+                    echo "</div>";
                 }
+                echo "</div>";
+            } else {
+                echo "0 筆結果";
             }
-            echo '<script>window.location.hash = "myForm";</script>';
+
             ?>
         </div>
-    </div>
-</section>
+    </section>
+
+    <!-- Three -->
+    <section id="three" class="wrapper style1">
+        <header class="major">
+            <h2>刪除課程評論</h2>
+            <p>刪除前，請先確認是否真的要刪除，否則將一去不復返</p>
+        </header>
+
+        <form style="float: left; width: 50%;" method="GET">
+            <div id="searchContainer">
+                <div id="categorySearch">
+                    <h2 id="myForm">以課程名稱搜尋</h2>
+                    <input type="text" id="searchInput" name="course" placeholder="例: 通識選修">
+                    <button type="submit" name="search">搜 尋</button>
+                </div>
+            </div>
+        </form>
+
+        <form style="float: right; width: 50%;" method="GET">
+            <div id="searchContainer">
+                <div id="teacherSearch">
+                    <h2 id="myForm">以老師搜尋</h2>
+                    <input type="text" id="searchInput" name="teacher" placeholder="例: 許政穆">
+                    <button type="submit" name="search">搜 尋</button>
+                </div>
+            </div>
+            <br>
+        </form>
+
+        <br><br>
+        <header class="major">
+            <h2>搜尋結果</h2>
+        </header>
+        <div class="coursecontainer">
+            <div>
+                <?php
+                $query = "";
+                if (isset($_GET['teacher']) && !empty($_GET['teacher'])) {
+                    $teacher = urlencode($_GET['teacher']);
+                    $query = "teacher=eq.$teacher";
+                } elseif (isset($_GET['course']) && !empty($_GET['course'])) {
+                    $course = urlencode($_GET['course']);
+                    $query = "course_name=eq.$course";
+                }
+
+                if ($query) {
+                    $ch = curl_init("$supabaseUrl/rest/v1/evaluation?select=*&$query");
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                        "apikey: $supabaseKey",
+                        "Authorization: Bearer $supabaseKey"
+                    ]);
+                    $response = curl_exec($ch);
+                    curl_close($ch);
+
+                    $evaluations = json_decode($response, true);
+
+                    if (!empty($evaluations)) {
+                        foreach ($evaluations as $row) {
+                            echo '<div class="evaluation-block">';
+                            echo "<p class='scroll'><strong>課程類別 :</strong> <span class='pfont'>" . htmlspecialchars($row['small_category']) . "</span></p>";
+                            echo "<p><strong>課程名稱 :</strong> <span class='pfont'>" . htmlspecialchars($row['course_name']) . "</span></p>";
+                            echo "<p><strong>老師 :</strong> <span class='pfont'>" . htmlspecialchars($row['teacher']) . "</span></p>";
+
+                            echo '<div class="full-content" style="display: none;">';
+                            echo "<p><strong>Thoughts:</strong> " . htmlspecialchars($row['thoughts']) . "</p>";
+
+                            // 評分區塊 (動態顯示星星)
+                            $fields = [
+                                "all_evaluation" => "整體評價",
+                                "credit_sweet" => "給分甜度",
+                                "learning" => "含金量",
+                                "evilking_level" => "老師78程度"
+                            ];
+                            foreach ($fields as $field => $label) {
+                                $stars = intval($row[$field]);
+                                echo "<p><strong>$label:</strong></p>";
+                                echo "<img src='images/{$stars}_star.png'>";
+                            }
+                            echo '</div>';
+
+                            echo '<button class="show-full-content">learn more</button>';
+                            echo '<button class="show-partial-content" style="display: none;">Show less</button>';
+
+                            // 刪除按鈕 (打 Supabase DELETE API)
+                            echo '<form method="post" action="delete_evaluation.php">';
+                            echo '<input type="hidden" name="evaluation_id" value="' . $row['evaluation_id'] . '">';
+                            echo '<button type="submit" class="delete-button">刪除</button>';
+                            echo '</form>';
+                            echo '</div>';
+                        }
+                    } else {
+                        echo "No results found.";
+                    }
+                }
+                echo '<script>window.location.hash = "myForm";</script>';
+                ?>
+            </div>
+        </div>
+    </section>
 
     <!-- Footer -->
     <footer id="footer">

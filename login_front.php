@@ -40,28 +40,30 @@
 
     <!-- Main -->
     <section id="main" class="wrapper style1" style="background-color: #efba47; color:white;">
-        <div class="leaf-container" style="background-color:white; padding:20px; border-radius:10px;">
-            <img src="images/orange.png" width="200" height="200">
-            <aside>
-                <!--  表單送到 login.php，驗證 Supabase -->
-                <!-- 一般登入 -->
-                <form method="post" action="login.php">
-                    <label for="username">帳號</label>
-                    <input type="text" id="username" name="username" required placeholder="你的帳號">
-                    
-                    <label for="password">密碼</label>
-                    <input type="password" id="password" name="password" required placeholder="你的密碼">
-                    
-                    <input type="submit" name="submit-btn" value="登入"
-                           style="width: 100%; background-color:#8b4513; color:white;">
-                </form>
-            
-                <!-- Google 登入 -->
-                <form method="post" action="login.php" style="margin-top: 20px;">
-                    <input type="submit" name="google-submit" value="使用 Google 登入"
-                           style="width: 100%; background-color:#db4437; color:white;">
-                </form>
-            </aside>
+        <div style="display: flex; justify-content: center; align-items: center; padding: 20px;">
+            <div class="leaf-container"
+                style="background-color:white; padding:20px; border-radius:10px; display: flex; align-items: center;">
+                <img src="images/orange.png" width="200" height="300" style="margin-right: 20px;">
+                <aside style="padding: 10px;">
+                    <form method="post" action="login.php">
+                        <label for="username" style="margin-bottom: 5px;">帳號</label>
+                        <input type="text" id="username" name="username" required placeholder="你的帳號"
+                            style="width: 100%; margin-bottom: 5px;">
+
+                        <label for="password" style="margin-top: 10px; margin-bottom: 5px;">密碼</label>
+                        <input type="password" id="password" name="password" required placeholder="你的密碼"
+                            style="width: 100%; margin-bottom: 5px;">
+
+                        <input type="submit" name="submit-btn" value="登入"
+                            style="width: 100%; background-color:#8b4513; color:white; margin-left: 0px ; margin-bottom: -10px;">
+                    </form>
+
+                    <form method="post" action="login.php" style="margin-top: 20px;">
+                        <input type="submit" name="google-submit" value="使用 Google 登入"
+                            style="width: 100%; background-color:#db4437; color:white; margin-left: 0px;">
+                    </form>
+                </aside>
+            </div>
         </div>
     </section>
 
@@ -72,5 +74,5 @@
         </ul>
     </footer>
 </body>
-</html>
 
+</html>
