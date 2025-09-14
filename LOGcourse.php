@@ -353,6 +353,7 @@
                     <div class="container">
                         <div>
                             <?php
+
                             // 檢查是否有資料
                             if ($evaluations && count($evaluations) > 0) {
                                 foreach ($evaluations as $row) {

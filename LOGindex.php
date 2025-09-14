@@ -1,9 +1,4 @@
 <!DOCTYPE HTML>
-<!--
-    Ion by TEMPLATED
-    templated.co @templatedco
-    Released for free under the Creative Commons Attribution 3.0 license (templated.co/license)
--->
 <html>
 
 <head>
@@ -13,37 +8,256 @@
     <meta name="description" content="">
     <meta name="keywords" content="">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-    <!--[if lte IE 8]><script src="js/html5shiv.js"></script><![endif]-->
     <script src="js/jquery.min.js"></script>
     <script src="js/skel.min.js"></script>
     <script src="js/skel-layers.min.js"></script>
-    <script src="js/init.js"></script><noscript>
+    <script src="js/init.js"></script>
+    <noscript>
         <link rel="stylesheet" href="css/skel.css">
         <link rel="stylesheet" href="css/style.css">
         <link rel="stylesheet" href="css/style-xlarge.css">
     </noscript>
+    <style>
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 80px;
+            height: 80px;
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(10px);
+            }
+
+            40% {
+                transform: translateY(-30px);
+            }
+
+            60% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .loadinggif {
+            margin-right: 10px;
+            width: 180px;
+            height: 100px;
+        }
+
+        #header nav>ul>li a.up {
+            position: relative;
+        }
+
+        #header nav>ul>li a.up::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: 5px;
+            width: 0;
+            height: 2px;
+            background-color: #ced0d1;
+            transition: width 0.3s ease-out, left 0.3s ease-out;
+            transform-origin: center;
+        }
+
+        #header nav>ul>li a.up:hover::after {
+            width: 100%;
+            left: 0;
+        }
+
+        #header nav>ul>li a.up:hover {
+            color: #629DD1;
+        }
+
+        #header nav>ul>li .count:hover::after {
+            width: 0;
+        }
+
+        #header nav>ul>li .count:hover {
+            color: #555f66;
+        }
+
+        #header nav>ul>li a.button:hover::after {
+            width: 0;
+        }
+
+        #header nav>ul>li a.button.special:hover {
+            color: #629DD1;
+        }
+
+        #searchInput {
+            background-color: #ffffff;
+            padding: 20px;
+            margin: 50px;
+            width: 300px;
+            height: 35px;
+            border: 5px solid #c4f0cb;
+            border-radius: 15px;
+            margin: auto;
+            margin-left: 200px;
+        }
+
+        #search {
+            background-color: #c9ecf7;
+            border-radius: 15px;
+            margin: auto;
+            width: 60px;
+            height: 45px;
+            font-size: 16px;
+            border: 5px;
+        }
+
+        #search:hover {
+            color: #629DD1;
+        }
+
+        #class {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            margin-left: 25px;
+        }
+
+        header.major {
+            margin-top: -50px;
+        }
+
+        .container_course {
+            background-color: #f2f2f2;
+            width: 100%;
+            padding: 40px 20px;
+            border-radius: 0;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+            box-sizing: border-box;
+        }
+
+        .evaluation-block {
+            width: 390px;
+            height: 260px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: inline-block;
+            vertical-align: top;
+            background-color: #666;
+            color: #fff;
+            border-radius: 15px;
+            position: relative;
+            transition: height 0.3s ease-in-out;
+        }
+
+        .evaluation-block p strong {
+            color: #ffad33;
+        }
+
+        .evaluation-block .pfont {
+            font-size: 18px;
+        }
+
+        .evaluation-block:last-child {
+            margin-right: 0;
+        }
+
+        .evaluation-block p {
+            margin: 5px 0;
+        }
+
+        .evaluation-block img {
+            width: 200px;
+            height: 50px;
+            margin-right: 5px;
+        }
+
+        .evaluation-block .additional-style {
+            color: red;
+            font-weight: bold;
+        }
+
+        .evaluation-block .show-full-content,
+        .evaluation-block .show-partial-content {
+            background-color: #c7a4ff;
+            color: #555;
+            padding: 8px 16px;
+            border: 2px solid #555;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            position: absolute;
+            bottom: 15px;
+            left: 18px;
+        }
+
+        .evaluation-block .show-full-content:hover,
+        .evaluation-block .show-partial-content:hover {
+            background-color: #9c7cf2;
+            color: #ffffff;
+        }
+
+        .evaluation-block .show-full-content:hover,
+        .evaluation-block .show-partial-content:hover {
+            background-color: #555;
+            color: #fff;
+        }
+
+        .user-avatar {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: -30px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .user-avatar:hover .dropdown {
+            display: block;
+        }
+    </style>
 </head>
-<script>
-setTimeout(function () {
-    document.getElementById("preloader").style.display = "none";
-}, 3000);
-</script>
 
 <body id="top">
-    <!--preloader-->
     <div id="preloader">
         <img src="images/orange.png" alt="Loading..." class="spinner">
         <img src="images/loading.gif" class="loadinggif">
     </div>
 
-    <!-- Header -->
     <header id="header" class="skel-layers-fixed">
         <h1><a href="LOGindex.php" class="up">早安美吱澄</a></h1>
         <nav id="nav">
             <ul>
                 <li><a href="LOGindex.php" class="up">首頁</a></li>
                 <li><a href="LOGcourse.php" class="up">課程評價</a></li>
-                <!--<li><a href="right-sidebar.html" class="up">待思考</a></li>-->
                 <li><a href="LOGfeedback_front.php" class="up">意見回饋</a></li>
                 <li class="user-avatar">
                     <a href="users.php"><img src="images/manage.png" alt="User Avatar"
@@ -52,302 +266,23 @@ setTimeout(function () {
                         <li><a href="login_front.php">Log out</a></li>
                     </ul>
                 </li>
-
             </ul>
         </nav>
-        <style>
-            #preloader {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: #fff;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                z-index: 1000;
-            }
-
-            .spinner {
-                width: 80px;
-                height: 80px;
-                animation: bounce 1s ease-in-out infinite;
-            }
-
-            @keyframes bounce {
-
-                0%,
-                20%,
-                50%,
-                80%,
-                100% {
-                    transform: translateY(10px);
-                }
-
-                40% {
-                    transform: translateY(-30px);
-                    /* 調整彈跳的高度，以符合您的需求 */
-                }
-
-                60% {
-                    transform: translateY(-15px);
-                    /* 調整彈跳的高度，以符合您的需求 */
-                }
-            }
-
-
-            .loadinggif {
-                margin-right: 10px;
-                /* 調整圖片之間的距離，可根據需要調整 */
-                width: 180px;
-                /* 調整 GIF 寬度 */
-                height: 100px;
-                /* 調整 GIF 高度 */
-            }
-
-            #header nav>ul>li a.up {
-                position: relative;
-            }
-
-            #header nav>ul>li a.up::after {
-                content: '';
-                position: absolute;
-                left: 50%;
-                bottom: 5px;
-                /* 负值表示往上移动 */
-                width: 0;
-                height: 2px;
-                background-color: #ced0d1;
-                transition: width 0.3s ease-out, left 0.3s ease-out;
-                /* 添加 left 的过渡效果 */
-                transform-origin: center;
-                /* 设置变换的原点为中心 */
-            }
-
-            #header nav>ul>li a.up:hover::after {
-                width: 100%;
-                /* 鼠标悬停时擴散直线的寬度 */
-                left: 0;
-                /* 鼠标悬停时调整 left 为 0，使线条从中心向两边扩展 */
-            }
-
-            #header nav>ul>li a.up:hover {
-                color: #629DD1;
-            }
-
-            /*統計人數樣式*/
-            #header nav>ul>li .count:hover::after {
-                width: 0;
-            }
-
-            #header nav>ul>li .count:hover {
-                color: #555f66;
-            }
-
-            /*Login樣式*/
-            #header nav>ul>li a.button:hover::after {
-                width: 0;
-            }
-
-            /*Login樣式*/
-            #header nav>ul>li a.button.special:hover {
-                color: #629DD1;
-            }
-
-            /* 在 section 中应用样式 */
-            #searchInput {
-                background-color: #ffffff;
-                padding: 20px;
-                margin: 50px;
-                width: 300px;
-                /* 设置宽度 */
-                height: 35px;
-                /* 可以根据需要修改高度值 */
-                border: 5px solid #c4f0cb;
-                /* 设置边框为2px的实线，颜色为#333 */
-                border-radius: 15px;
-                /* 添加圆角，数值可以根据需要调整 */
-                margin: auto;
-                /* 使元素水平居中 */
-                margin-left: 200px;
-            }
-
-            #search {
-                background-color: #c9ecf7;
-                border-radius: 15px;
-                /* 添加圆角，数值可以根据需要调整 */
-                margin: auto;
-                /* 使元素水平居中 */
-                width: 60px;
-                /* 设置宽度 */
-                height: 45px;
-                /* 可以根据需要修改高度值 */
-                font-size: 16px;
-                border: 5px;
-            }
-
-            #search:hover {
-                color: #629DD1;
-            }
-
-            #class {
-                list-style-type: none;
-                padding: 0;
-                margin: 0;
-                margin-left: 25px;
-                /* 根据需要调整缩进距离 */
-            }
-
-            header.major {
-                margin-top: -50px;
-                /* 负的上边距值，可以根据需要调整 */
-            }
-
-            .coursecontainer {
-                background-color: #ccc;
-                /* 背景颜色 */
-                padding: 15px;
-                /* 在内容和边框之间添加 20px 的内边距，你可以根据需要调整这个值 */
-                border-radius: 8px;
-                /* 圆弧形边框 */
-            }
-
-            /* PHP Evaluation Block Styles */
-            .coursecontainer>div>div {
-                width: 390px;
-                height: 260px;
-                box-sizing: border-box;
-                border: 1px solid #ccc;
-                padding: 20px;
-                margin-bottom: 20px;
-                display: inline-block;
-                vertical-align: top;
-                background-color: #666;
-                /* 灰色背景 */
-                color: #fff;
-                /* 文字白色 */
-                border-radius: 15px;
-                /* 圆弧形边框 */
-                position: relative;
-                /* 使子元素相对于父元素进行定位 */
-            }
-
-            .coursecontainer>div>div p strong {
-                color: #ffad33;
-                /* 文字颜色，亮橙色 */
-            }
-
-            .coursecontainer>div>div .pfont {
-                font-size: 18px;
-                /* 請根據需要調整字體大小的像素值 */
-            }
-
-
-            .coursecontainer>div>div:last-child {
-                margin-right: 0;
-            }
-
-            /* PHP Evaluation Content Styles */
-            .coursecontainer>div>div p {
-                margin: 5px 0;
-            }
-
-            /* PHP Evaluation Star Rating Styles */
-            .coursecontainer>div>div img {
-                width: 200px;
-                height: 50px;
-                margin-right: 5px;
-            }
-
-            /* 新增樣式 */
-            .coursecontainer>div>div .additional-style {
-                color: red;
-                font-weight: bold;
-            }
-
-            /* 新增樣式 - Learn More 按鈕 */
-            .coursecontainer>div>div .show-full-content,
-            .coursecontainer>div>div .show-partial-content {
-                background-color: #c7a4ff;
-                /* Learn More 按钮背景颜色，亮橙色 */
-                color: #555;
-                /* Learn More 按钮文字颜色 */
-                padding: 8px 16px;
-                /* Learn More 按钮内边距 */
-                border: 2px solid #555;
-                /* Learn More 按钮边框 */
-                border-radius: 5px;
-                /* Learn More 按钮圆角边框 */
-                cursor: pointer;
-                transition: background-color 0.3s, color 0.3s;
-                position: absolute;
-                /* Learn More 按钮绝对定位 */
-                bottom: 15px;
-                /* Learn More 按钮距离底部 15px */
-                left: 18px;
-                /* Learn More 按钮距离左侧 18px */
-            }
-
-            .coursecontainer>div>div .show-full-content:hover,
-            .coursecontainer>div>div .show-partial-content:hover {
-                background-color: #9c7cf2;
-                /* 鼠标悬停时的背景颜色 */
-                color: #ffffff;
-                /* 鼠标悬停时的文字颜色 */
-            }
-
-            .coursecontainer>div>div .show-full-content:hover,
-            .coursecontainer>div>div .show-partial-content:hover {
-                background-color: #555;
-                /* 鼠标悬停时的背景颜色 */
-                color: #fff;
-                /* 鼠标悬停时的文字颜色 */
-            }
-
-            .user-avatar {
-                position: relative;
-                display: inline-block;
-            }
-
-            .dropdown {
-                display: none;
-                position: absolute;
-                top: 100%;
-                left: -30px;
-                background-color: #fff;
-                border: 1px solid #ccc;
-                box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-                list-style: none;
-                padding: 0;
-                margin: 0;
-            }
-
-            .user-avatar:hover .dropdown {
-                display: block;
-            }
-        </style>
     </header>
-    <!-- Banner -->
+
     <section id="banner">
         <div class="inner">
             <h2>國立嘉義大學課程評價系統</h2>
             <p style="font-size: 30px">NCYU<a href=""></a></p>
-            <!--<ul class="actions"><li><a href="login_front.php" class="button big special">Sign Up</a></li>-->
-            <!--<li><a href="#elements" class="button big alt">Learn More</a></li>-->
             </ul>
         </div>
     </section>
 
-    <!-- Main -->
     <section id="main" class="wrapper style1">
-    <h1 style="text-align: center; font-size: 42px;">歡迎使用嘉義大學課程評價系統!</h1>
-    <p></p>
-    <div class="container_course">
-        <div>
-            <!--這邊是課程評價結果-->
+        <h1 style="text-align: center; font-size: 42px;">歡迎使用嘉義大學課程評價系統!</h1>
+        <div class="container_course">
             <?php
+            // PHP 區塊處理課程評價資料
             $supabase_url = getenv('SUPABASE_URL');
             $supabase_anon_key = getenv('SUPABASE_ANON_KEY');
 
@@ -355,9 +290,8 @@ setTimeout(function () {
                 die("Supabase API URL 或 Key 未設定。");
             }
 
-            // 隨機 5 筆
             $ch = curl_init();
-            $api_url = $supabase_url . '/rest/v1/evaluation?select=*&order=random()&limit=5';
+            $api_url = $supabase_url . '/rest/v1/evaluation?select=*';
 
             curl_setopt($ch, CURLOPT_URL, $api_url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -375,24 +309,30 @@ setTimeout(function () {
 
             $evaluations = json_decode($response, true);
 
-            if ($evaluations && count($evaluations) > 0) {
+            // 處理顯示
+            if (is_array($evaluations) && count($evaluations) > 0) {
+                // 在 PHP 端進行隨機排序
+                shuffle($evaluations);
+                // 只取前 5 筆資料
+                $evaluations = array_slice($evaluations, 0, 5);
+
+                // 評分星星圖片對應函數
+                function showStars($value, $label)
+                {
+                    echo "<p><strong>$label:</strong> </p>";
+                    if ($value >= 1 && $value <= 5) {
+                        $stars = ["one", "two", "three", "four", "five"];
+                        echo "<img src='images/" . $stars[$value - 1] . "_star.png'>";
+                    }
+                }
+
                 foreach ($evaluations as $row) {
                     echo '<div class="evaluation-block">';
-                    echo "<p class = 'scroll'><strong>課程類別 :</strong> <span class='pfont'>" . htmlspecialchars($row['small_category']) . "</p>";
+                    echo "<p class='scroll'><strong>課程類別 :</strong> <span class='pfont'>" . htmlspecialchars($row['small_category']) . "</span></p>";
                     echo "<p><strong>課程名稱 :</strong> <span class='pfont'>" . htmlspecialchars($row['course_name']) . "</span></p>";
                     echo "<p><strong>老師 :</strong> <span class='pfont'>" . htmlspecialchars($row['teacher']) . "</span></p>";
-
                     echo '<div class="full-content" style="display: none;">';
                     echo "<p><strong>Thoughts:</strong> " . htmlspecialchars($row['thoughts']) . "</p>";
-
-                    // 評分顯示
-                    function showStars($value, $label) {
-                        echo "<p><strong>$label:</strong> </p>";
-                        if ($value >= 1 && $value <= 5) {
-                            $stars = ["one","two","three","four","five"];
-                            echo "<img src='images/" . $stars[$value-1] . "_star.png'>";
-                        }
-                    }
 
                     showStars($row['all_evaluation'], "整體評價");
                     showStars($row['credit_sweet'], "給分甜度");
@@ -405,120 +345,117 @@ setTimeout(function () {
                     echo '</div>';
                 }
             } else {
-                echo "0 筆結果";
+                echo "沒有找到課程評價或資料庫連線有問題。";
             }
             ?>
         </div>
-    </div>
-    <div class="container">
-        <div class="row">
-            <div class="4u">
-                <section>
-                    <h3>課程分類</h3>
-                    <ul class="alt">
-                        <li><a href="#">通識教育必修</a>
-                            <ul id="class">
-                                <li><a href="#">國文</a></li>
-                                <li><a href="#">英文</a></li>
-                                <li><a href="#">體育</a></li>
-                            </ul>
-                        </li>
-                        <li><a href="#">通識選修</a></li>
-                        <li><a href="#">專業必修</a></li>
-                        <li><a href="#">專業選修</a></li>
-                        <li><a href="#">共同選修</a></li>
-                        <li><a href="#">網路通識</a></li>
-                    </ul>
-                </section>
-                <hr>
-            </div>
-            <div class="8u skel-cell-important">
-                <form method="GET">
+        <div class="container">
+            <div class="row">
+                <div class="4u">
                     <section>
-                        <h2 style="text-align: center; margin-top: 80px">以課程名稱搜尋</h2>
-                        <input type="text" id="searchInput" name="course" placeholder="例: 網際網路服務">
-                        <button type="submit" id="search">搜尋</button>
+                        <h3>課程分類</h3>
+                        <ul class="alt">
+                            <li><a href="#">通識教育必修</a>
+                                <ul id="class">
+                                    <li><a href="#">國文</a></li>
+                                    <li><a href="#">英文</a></li>
+                                    <li><a href="#">體育</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="#">通識選修</a></li>
+                            <li><a href="#">專業必修</a></li>
+                            <li><a href="#">專業選修</a></li>
+                            <li><a href="#">共同選修</a></li>
+                            <li><a href="#">網路通識</a></li>
+                        </ul>
                     </section>
-                </form>
-                <form method="GET">
-                    <section>
-                        <br>
-                        <h2 style="text-align: center; margin-top: 20px">以老師搜尋</h2>
-                        <input type="text" id="searchInput" name="teacher" placeholder="例: 許政穆">
-                        <button type="submit" id="search">搜尋</button>
-                        <p></p>
-                    </section>
-                </form>
+                    <hr>
+                </div>
+                <div class="8u skel-cell-important">
+                    <form method="GET">
+                        <section>
+                            <h2 style="text-align: center; margin-top: 80px">以課程名稱搜尋</h2>
+                            <input type="text" id="searchInput" name="course" placeholder="例: 網際網路服務">
+                            <button type="submit" id="search">搜尋</button>
+                        </section>
+                    </form>
+                    <form method="GET">
+                        <section>
+                            <br>
+                            <h2 style="text-align: center; margin-top: 20px">以老師搜尋</h2>
+                            <input type="text" id="searchInput" name="teacher" placeholder="例: 許政穆">
+                            <button type="submit" id="search">搜尋</button>
+                            <p></p>
+                        </section>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<section id="main" class="wrapper style1">
-    <h1 style="text-align: center; font-size: 42px;">查詢結果</h1>
-    <div class='coursecontainer'>
-        <div>
-            <?php
-            // 查詢區塊
-            if ($_SERVER["REQUEST_METHOD"] == "GET") {
-                if (isset($_GET['teacher']) && !empty($_GET['teacher'])) {
-                    $teacher = $_GET['teacher'];
-                    $api_url = $supabase_url . "/rest/v1/evaluation?teacher=eq.$teacher&select=*";
-                } elseif (isset($_GET['course']) && !empty($_GET['course'])) {
-                    $course = $_GET['course'];
-                    $api_url = $supabase_url . "/rest/v1/evaluation?course_name=eq.$course&select=*";
-                }
-
-                if (isset($api_url)) {
-                    $ch = curl_init();
-                    curl_setopt($ch, CURLOPT_URL, $api_url);
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                        'apikey: ' . $supabase_anon_key,
-                        'Authorization: Bearer ' . $supabase_anon_key,
-                        'Content-Type: application/json',
-                    ]);
-                    $response = curl_exec($ch);
-                    if (curl_errno($ch)) {
-                        die('cURL 錯誤: ' . curl_error($ch));
+    <section id="main" class="wrapper style1">
+        <h1 style="text-align: center; font-size: 42px;">查詢結果</h1>
+        <div class='container_course'>
+            <div>
+                <?php
+                // 查詢區塊
+                if ($_SERVER["REQUEST_METHOD"] == "GET" && (isset($_GET['teacher']) || isset($_GET['course']))) {
+                    $api_url = null;
+                    if (isset($_GET['teacher']) && !empty($_GET['teacher'])) {
+                        $teacher = urlencode($_GET['teacher']);
+                        $api_url = $supabase_url . "/rest/v1/evaluation?teacher=eq.$teacher&select=*";
+                    } elseif (isset($_GET['course']) && !empty($_GET['course'])) {
+                        $course = urlencode($_GET['course']);
+                        $api_url = $supabase_url . "/rest/v1/evaluation?course_name=eq.$course&select=*";
                     }
-                    curl_close($ch);
 
-                    $results = json_decode($response, true);
-
-                    if ($results && is_array($results) && count($results) > 0) {
-                        foreach ($results as $row) {
-                            echo '<div class="evaluation-block">';
-                            echo "<p class = 'scroll'><strong>課程類別 :</strong> <span class='pfont'>" . htmlspecialchars($row['small_category']) . "</p>";
-                            echo "<p><strong>課程名稱 :</strong> <span class='pfont'>" . htmlspecialchars($row['course_name']) . "</span></p>";
-                            echo "<p><strong>老師 :</strong> <span class='pfont'>" . htmlspecialchars($row['teacher']) . "</span></p>";
-
-                            echo '<div class="full-content" style="display: none;">';
-                            echo "<p><strong>Thoughts:</strong> " . htmlspecialchars($row['thoughts']) . "</p>";
-
-                            showStars($row['all_evaluation'], "整體評價");
-                            showStars($row['credit_sweet'], "給分甜度");
-                            showStars($row['learning'], "含金量");
-                            showStars($row['evilking_level'], "老師78程度");
-
-                            echo '</div>';
-                            echo '<button class="show-full-content">learn more</button>';
-                            echo '<button class="show-partial-content" style="display: none;">Show less</button>';
-                            echo '</div>';
+                    if ($api_url) {
+                        $ch = curl_init();
+                        curl_setopt($ch, CURLOPT_URL, $api_url);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                            'apikey: ' . $supabase_anon_key,
+                            'Authorization: Bearer ' . $supabase_anon_key,
+                            'Content-Type: application/json',
+                        ]);
+                        $response = curl_exec($ch);
+                        if (curl_errno($ch)) {
+                            die('cURL 錯誤: ' . curl_error($ch));
                         }
-                    } else {
-                        echo "No results found.";
+                        curl_close($ch);
+
+                        $results = json_decode($response, true);
+
+                        if ($results && is_array($results) && count($results) > 0) {
+                            foreach ($results as $row) {
+                                echo '<div class="evaluation-block">';
+                                echo "<p class='scroll'><strong>課程類別 :</strong> <span class='pfont'>" . htmlspecialchars($row['small_category']) . "</span></p>";
+                                echo "<p><strong>課程名稱 :</strong> <span class='pfont'>" . htmlspecialchars($row['course_name']) . "</span></p>";
+                                echo "<p><strong>老師 :</strong> <span class='pfont'>" . htmlspecialchars($row['teacher']) . "</span></p>";
+                                echo '<div class="full-content" style="display: none;">';
+                                echo "<p><strong>Thoughts:</strong> " . htmlspecialchars($row['thoughts']) . "</p>";
+
+                                showStars($row['all_evaluation'], "整體評價");
+                                showStars($row['credit_sweet'], "給分甜度");
+                                showStars($row['learning'], "含金量");
+                                showStars($row['evilking_level'], "老師78程度");
+
+                                echo '</div>';
+                                echo '<button class="show-full-content">learn more</button>';
+                                echo '<button class="show-partial-content" style="display: none;">Show less</button>';
+                                echo '</div>';
+                            }
+                        } else {
+                            echo "沒有找到相關課程。";
+                        }
                     }
                 }
-            }
-            ?>
+                ?>
+
+            </div>
         </div>
-    </div>
-</section>
+    </section>
 
-
-    <!-- Footer -->
-    <!--leaf change-->
     <footer id="footer">
         <ul class="icons">
             <li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
@@ -532,48 +469,46 @@ setTimeout(function () {
         </ul>
     </footer>
 
-    <!---寫顯示完整內容的按鈕--->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            var showButtons = document.querySelectorAll(".show-full-content, .show-partial-content");
+            // 處理所有評價區塊的 learn more/show less 按鈕
+            var evaluationBlocks = document.querySelectorAll(".evaluation-block");
 
-            showButtons.forEach(function (button) {
-                button.addEventListener("click", function () {
-                    var evaluationBlock = button.closest(".evaluation-block");
-                    var fullContent = evaluationBlock.querySelector(".full-content");
+            evaluationBlocks.forEach(function (block) {
+                var showMoreBtn = block.querySelector(".show-full-content");
+                var showLessBtn = block.querySelector(".show-partial-content");
+                var fullContent = block.querySelector(".full-content");
 
-                    if (fullContent && button.classList.contains("show-full-content")) {
-                        // 在顯示完整內容之前儲存原始高度
-                        var originalHeight = evaluationBlock.offsetHeight;
+                if (showMoreBtn) {
+                    showMoreBtn.addEventListener("click", function () {
                         fullContent.style.display = "block";
-                        button.style.display = "none";
-                        evaluationBlock.querySelector(".show-partial-content").style.display = "inline-block";
+                        showMoreBtn.style.display = "none";
+                        showLessBtn.style.display = "inline-block";
+                        block.style.height = 'auto'; // 讓高度自動適應內容
 
-                        // 計算並調整 div 高度以容納完整內容
-                        var newHeight = originalHeight + fullContent.offsetHeight;
-                        evaluationBlock.style.height = newHeight + "px";
+                        // 平滑捲動到該區塊
+                        smoothScrollTo(block.offsetTop - 40, 300);
+                    });
+                }
 
-                        // 滑動到該筆資料的 div 最上層，停在頂部一點
-                        smoothScrollTo(evaluationBlock.offsetTop - 40, 300); // offsetTop可以調整上滑距離  調整後面數字以控制往上滑的時間
-                    } else if (button.classList.contains("show-partial-content")) {
-                        // 隱藏完整內容並顯示「繼續閱讀」按鈕
+                if (showLessBtn) {
+                    showLessBtn.addEventListener("click", function () {
                         fullContent.style.display = "none";
-                        button.style.display = "none";
-                        evaluationBlock.querySelector(".show-full-content").style.display = "inline-block";
+                        showLessBtn.style.display = "none";
+                        showMoreBtn.style.display = "inline-block";
+                        block.style.height = "260px"; // 恢復原始高度
 
-                        // 恢復原始 div 高度
-                        evaluationBlock.style.height = "260px"; // 這裡替換為原本的高度，您需要使用原本的高度值
-
-                        // 平滑捲動回到 div 的頂端
-                        smoothScrollTo(evaluationBlock.offsetTop - 40, 300);
-                    }
-                });
+                        // 平滑捲動到該區塊
+                        smoothScrollTo(block.offsetTop - 40, 300);
+                    });
+                }
             });
 
+            // 平滑捲動函數
             function smoothScrollTo(targetPosition, duration) {
-                var startPosition = window.scrollY || window.pageYOffset,
-                    distance = targetPosition - startPosition,
-                    startTime = null;
+                var startPosition = window.scrollY || window.pageYOffset;
+                var distance = targetPosition - startPosition;
+                var startTime = null;
 
                 function animation(currentTime) {
                     if (startTime === null) startTime = currentTime;
@@ -596,28 +531,14 @@ setTimeout(function () {
             }
         });
 
-
-    </script>
-
-    <!--preloader-->
-    <script>
-
         window.addEventListener("load", function () {
-            // 延遲 1 秒 (1000 毫秒)
+            // 延遲 1 秒後隱藏 preloader
             setTimeout(function () {
-                // 延遲後隱藏 preloader
                 var preloader = document.getElementById("preloader");
                 preloader.style.display = "none";
             }, 1000);
         });
-
     </script>
-
 </body>
 
-
 </html>
-
-
-
-

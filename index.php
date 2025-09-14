@@ -1,145 +1,62 @@
 <?php
-// 必須是檔案第一行：避免 headers already sent
 session_start();
-
-// 讀環境變數（Render / 你主機上設定的 SUPABASE_*）
+// 讀取環境變數
 $supabaseUrl = getenv('SUPABASE_URL');
 $supabaseKey = getenv('SUPABASE_ANON_KEY');
-
-// 內部 flag 與錯誤收集（不要直接 die()）
-$sup_ok = true;
-$sup_errors = [];
-
-// 簡易檢查
-if (!$supabaseUrl || !$supabaseKey) {
-    $sup_ok = false;
-    $sup_errors[] = 'Supabase 環境變數未設定（SUPABASE_URL / SUPABASE_ANON_KEY）。';
-    // 不用 die()，只記錄，讓頁面可以繼續載入（顯示友善訊息）
-    error_log('Supabase env missing in index.php');
-}
-
-// 小而穩固的 cURL helper（帶 timeout 與錯誤處理）
-function supabase_get(string $path) {
-    global $supabaseUrl, $supabaseKey, $sup_ok, $sup_errors;
-    if (!$sup_ok) return false;
-
-    // 組完整 URL（允許 path 已含 query）
-    $endpoint = rtrim($supabaseUrl, '/') . '/rest/v1/' . ltrim($path, '/');
-
-    $ch = curl_init($endpoint);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 6); // <- 關鍵：避免長時間 hang
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 4);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'apikey: ' . $supabaseKey,
-        'Authorization: Bearer ' . $supabaseKey,
-        'Content-Type: application/json',
-        'Accept: application/json'
-    ]);
-
-    $res = curl_exec($ch);
-    $curlErr = curl_error($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    if ($curlErr) {
-        error_log("supabase_get cURL error: $curlErr (endpoint: $endpoint)");
-        $sup_errors[] = 'cURL 錯誤: ' . $curlErr;
-        return false;
-    }
-    if ($httpCode >= 400) {
-        error_log("supabase_get HTTP $httpCode returned for $endpoint, body: $res");
-        $sup_errors[] = "Supabase HTTP {$httpCode}";
-        return false;
-    }
-
-    $json = json_decode($res, true);
-    if ($json === null && json_last_error() !== JSON_ERROR_NONE) {
-        error_log('JSON decode error: ' . json_last_error_msg() . ' body: ' . $res);
-        $sup_errors[] = 'Supabase 回傳非 JSON';
-        return false;
-    }
-
-    return $json;
-}
-
-// 取得 users 筆數
-$users_data = supabase_get('users?select=id'); // 只抓 id
-$userCount = is_array($users_data) ? count($users_data) : '—';
-
-// 取得隨機 5 筆 evaluation
-$evals = supabase_get('evaluation?select=*&order=random()&limit=5');
-$evaluationCount = is_array($evals) ? count($evals) : 0;
-
-// 供頁面錯誤顯示（除錯用）
-if (!empty($sup_errors)) {
-    // 不要直接 echo 以免在 HTML 上方輸出造成 layout、headers 問題
-    // 錯誤寫到伺服器 log，或在頁面特定位置輸出 $sup_errors
-    error_log('Supabase errors: ' . implode(' | ', $sup_errors));
-}
 ?>
 
 <!DOCTYPE HTML>
-<!--
-    Ion by TEMPLATED
-    templated.co @templatedco
-    Released for free under the Creative Commons Attribution 3.0 license (templated.co/license)
--->
 <html>
 
 <head>
-    <title>首頁</title>
+    <title>首頁 - 早安美吱澄</title>
     <link rel="icon" type="image/png" href="images/orange.png">
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="keywords" content="">
+    <meta name="description" content="國立嘉義大學課程評價系統，提供使用者查詢、瀏覽和分享課程評價。">
+    <meta name="keywords" content="嘉義大學, 課程評價, NCYU, 課程, 評價">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-    <!--[if lte IE 8]><script src="js/html5shiv.js"></script><![endif]-->
-    <script src="js/jquery.min.js"></script>
-    <script src="js/skel.min.js"></script>
-    <script src="js/skel-layers.min.js"></script>
-    <script src="js/init.js"></script>
+
+    <link rel="stylesheet" href="css/skel.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style-xlarge.css">
     <noscript>
         <link rel="stylesheet" href="css/skel.css">
         <link rel="stylesheet" href="css/style.css">
         <link rel="stylesheet" href="css/style-xlarge.css">
     </noscript>
 
+    <script src="js/jquery.min.js"></script>
+    <script src="js/skel.min.js"></script>
+    <script src="js/skel-layers.min.js"></script>
+    <script src="js/init.js"></script>
 </head>
 
 <body id="top">
-    <!--preloader-->
+
     <div id="preloader">
         <img src="images/orange.png" alt="Loading..." class="spinner">
         <img src="images/loading.gif" class="loadinggif">
     </div>
 
-    <!-- Header -->
     <header id="header" class="skel-layers-fixed">
         <h1><a href="index.php">早安美吱澄</a></h1>
         <nav id="nav">
             <ul>
-                
-                    
-                <li><a>用戶人數: <?php echo $userCount; ?></a></li>
-                <li><a>課程評價: <?php echo $evaluationCount; ?></a></li>
-                    
+                <!-- <li><a id="userCountDisplay" class="count">用戶人數: Loading...</a></li>
+                <li><a id="evalCountDisplay" class="count">課程評價: Loading...</a></li> -->
                 <li><a href="index.php" class="up">首頁</a></li>
                 <li><a href="course.php" class="up">課程評價</a></li>
                 <li><a href="feedback_front.php" class="up">意見回饋</a></li>
-                    
-                <?php
-                    // 登入判斷
-                    if (isset($_SESSION["login_session"]) && $_SESSION["login_session"] === true) {
-                        echo '<li><a href="users.php"><img src="images/orange.png" alt="User Avatar" style="width: 40px; height: 40px;"></a></li>';
-                    } else {
-                        echo '<li><a href="login_front.php" class="button special">Login</a></li>';
-                    }
-                ?>
-
+                <?php if (isset($_SESSION["login_session"]) && $_SESSION["login_session"] === true): ?>
+                    <li><a href="users.php"><img src="images/orange.png" alt="User Avatar"
+                                style="width: 40px; height: 40px;"></a></li>
+                <?php else: ?>
+                    <li><a href="login_front.php" class="button special">Login</a></li>
+                <?php endif; ?>
             </ul>
         </nav>
+
         <style>
             #preloader {
                 position: fixed;
@@ -173,26 +90,17 @@ if (!empty($sup_errors)) {
 
                 40% {
                     transform: translateY(-30px);
-                    /* 調整彈跳的高度，以符合您的需求 */
                 }
 
                 60% {
                     transform: translateY(-15px);
-                    /* 調整彈跳的高度，以符合您的需求 */
                 }
             }
 
-
             .loadinggif {
-                margin-right: 10px;
-                /* 調整圖片之間的距離，可根據需要調整 */
                 width: 180px;
-                /* 調整 GIF 寬度 */
                 height: 100px;
-                /* 調整 GIF 高度 */
             }
-
-
 
             #header nav>ul>li a.up {
                 position: relative;
@@ -219,18 +127,13 @@ if (!empty($sup_errors)) {
                 color: #629DD1;
             }
 
-            /* 統計人數 */
-            #header nav>ul>li .count:hover::after {
+            #header nav>ul>li .count:hover::after,
+            #header nav>ul>li a.button:hover::after {
                 width: 0;
             }
 
             #header nav>ul>li .count:hover {
                 color: #555f66;
-            }
-
-            /* Login */
-            #header nav>ul>li a.button:hover::after {
-                width: 0;
             }
 
             #searchInput {
@@ -276,7 +179,6 @@ if (!empty($sup_errors)) {
                 border-radius: 8px;
             }
 
-            /* PHP Evaluation Block Styles */
             .coursecontainer>div>div {
                 width: 390px;
                 height: 260px;
@@ -304,12 +206,10 @@ if (!empty($sup_errors)) {
                 margin-right: 0;
             }
 
-            /* PHP Evaluation Content Styles */
             .coursecontainer>div>div p {
                 margin: 5px 0;
             }
 
-            /* PHP Evaluation Star Rating Styles */
             .coursecontainer>div>div img {
                 width: 200px;
                 height: 50px;
@@ -321,7 +221,6 @@ if (!empty($sup_errors)) {
                 font-weight: bold;
             }
 
-            /*  Learn More 按鈕 */
             .coursecontainer>div>div .show-full-content,
             .coursecontainer>div>div .show-partial-content {
                 background-color: #c7a4ff;
@@ -349,188 +248,159 @@ if (!empty($sup_errors)) {
             }
         </style>
     </header>
-    <!-- Banner -->
+
     <section id="banner">
         <div class="inner">
             <h2>國立嘉義大學課程評價系統</h2>
             <p style="font-size: 30px">NCYU<a href=""></a></p>
             <ul class="actions">
                 <li><a href="login_front.php" class="button big special">Sign Up</a></li>
-                <!--<li><a href="#elements" class="button big alt">Learn More</a></li>-->
             </ul>
         </div>
     </section>
 
-    <!-- Main -->
     <section id="main" class="wrapper style1">
         <h1 style="text-align: center; font-size: 42px;">歡迎使用嘉義大學課程評價系統!</h1>
         <p></p>
         <div class="container_course">
             <div>
-                <!--這邊是課程評價結果-->
-                <?php
-                    
-                    // Helper: 發送 GET 請求到 Supabase
-                    function supabaseGet($endpoint, $apikey) {
-                        $ch = curl_init($endpoint);
-                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                        curl_setopt($ch, CURLOPT_TIMEOUT, 6);
-                        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 4);
-                        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                            "apikey: $apikey",
-                            "Authorization: Bearer $apikey",
-                            "Content-Type: application/json"
-                        ]);
-                        $response = curl_exec($ch);
-                        if ($response === false) {
-                            error_log('cURL Error: ' . curl_error($ch));
-                        }
-                        curl_close($ch);
-                        return json_decode($response, true);
-                    }
+                <div id="evaluation-results">
+                    <p style="text-align: center;">載入中...請稍候</p>
+                </div>
+            </div>
 
-                    
-                    // 取得隨機 5 筆課程評價
-                    $evaluations = supabaseGet("$supabaseUrl/rest/v1/evaluation?select=*&limit=5", $supabaseKey);
-                    
-                    if (is_array($evaluations) && count($evaluations) > 0) {
-                        foreach ($evaluations as $row) {
-                            echo '<div class="evaluation-block" >';
-                            echo "<p class='scroll'><strong>課程類別 :</strong> <span class='pfont'>" . htmlspecialchars($row['small_category']) . "</p>";
-                            echo "<p><strong>課程名稱 :</strong> <span class='pfont'>" . htmlspecialchars($row['course_name']) . "</span></p>";
-                            echo "<p><strong>老師 :</strong> <span class='pfont'>" . htmlspecialchars($row['teacher']) . "</span></p>";
-                    
-                            echo '<div class="full-content" style="display: none;">';
-                            echo "<p><strong>Thoughts:</strong> " . htmlspecialchars($row['thoughts']) . "</p>";
-                    
-                            // 星星顯示函數
-                            function displayStars($value) {
+            <div class="container">
+                <div class="row">
+                    <div class="4u">
+                        <section>
+                            <h3>課程分類</h3>
+                            <ul class="alt">
+                                <li><a href="#">通識教育必修</a>
+                                    <ul id="class">
+                                        <li><a href="#">國文</a></li>
+                                        <li><a href="#">英文</a></li>
+                                        <li><a href="#">體育</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#">通識選修</a></li>
+                                <li><a href="#">專業必修</a></li>
+                                <li><a href="#">專業選修</a></li>
+                                <li><a href="#">共同選修</a></li>
+                                <li><a href="#">網路通識</a></li>
+                            </ul>
+                        </section>
+                        <hr>
+                    </div>
+
+                    <div class="8u skel-cell-important">
+                        <form method="GET">
+                            <section>
+                                <h2 style="text-align: center; margin-top: 80px">以課程名稱搜尋</h2>
+                                <input type="text" id="searchInput" name="course" placeholder="例: 網際網路服務">
+                                <button type="submit" id="search">搜尋</button>
+                            </section>
+                        </form>
+                        <form method="GET">
+                            <section>
+                                <br>
+                                <h2 style="text-align: center; margin-top: 20px">以老師搜尋</h2>
+                                <input type="text" id="searchInput" name="teacher" placeholder="例: 許政穆">
+                                <button type="submit" id="search">搜尋</button>
+                                <p></p>
+                                <p></p>
+                            </section>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <section id="main" class="wrapper style1">
+                <h1 style="text-align: center; font-size: 42px;">查詢結果</h1>
+                <div class='coursecontainer'>
+                    <div id="search-results">
+                        <?php
+                        // PHP for handling search results
+                        if ($_SERVER["REQUEST_METHOD"] == "GET") {
+                            $supabaseUrl = getenv('SUPABASE_URL');
+                            $supabaseKey = getenv('SUPABASE_ANON_KEY');
+
+                            /**
+                             * Helper function to fetch data from Supabase.
+                             * @param string $endpoint The Supabase API endpoint.
+                             * @param string $apikey The Supabase anon key.
+                             * @return array|null Decoded JSON response or null on error.
+                             */
+                            function supabaseGet($endpoint, $apikey)
+                            {
+                                $ch = curl_init($endpoint);
+                                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                                curl_setopt($ch, CURLOPT_TIMEOUT, 6);
+                                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 4);
+                                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                                    "apikey: $apikey",
+                                    "Authorization: Bearer $apikey",
+                                    "Content-Type: application/json"
+                                ]);
+                                $response = curl_exec($ch);
+                                if ($response === false) {
+                                    error_log('cURL Error: ' . curl_error($ch));
+                                }
+                                curl_close($ch);
+                                return json_decode($response, true);
+                            }
+
+                            /**
+                             * Displays star images based on a numeric value.
+                             * @param int $value The number of stars to display.
+                             */
+                            function displayStars($value)
+                            {
                                 for ($i = 0; $i < $value; $i++) {
                                     echo "<img src='images/five_star.png'>";
                                 }
                             }
-                    
-                            echo "<p><strong>整體評價:</strong> </p>";
-                            displayStars($row['all_evaluation']);
-                    
-                            echo "<p><strong>給分甜度:</strong> </p>";
-                            displayStars($row['credit_sweet']);
-                    
-                            echo "<p><strong>含金量:</strong> </p>";
-                            displayStars($row['learning']);
-                    
-                            echo "<p><strong>老師78程度:</strong> </p>";
-                            displayStars($row['evilking_level']);
-                    
-                            echo '</div>';
-                            echo '<button class="show-full-content">learn more</button>';
-                            echo '<button class="show-partial-content" style="display: none;">Show less</button>';
-                            echo '</div>';
-                        }
-                    } else {
-                        echo "0 筆結果";
-                    }
-                    ?>
-                    
-                    <div class="container">
-                        <div class="row">
-                            <div class="4u">
-                                <section>
-                                    <h3>課程分類</h3>
-                                    <ul class="alt">
-                                        <li><a href="#">通識教育必修</a>
-                                            <ul id="class">
-                                                <li><a href="#">國文</a></li>
-                                                <li><a href="#">英文</a></li>
-                                                <li><a href="#">體育</a></li>
-                                            </ul>
-                                        </li>
-                                        <li><a href="#">通識選修</a></li>
-                                        <li><a href="#">專業必修</a></li>
-                                        <li><a href="#">專業選修</a></li>
-                                        <li><a href="#">共同選修</a></li>
-                                        <li><a href="#">網路通識</a></li>
-                                    </ul>
-                                </section>
-                                <hr>
-                            </div>
-                            <div class="8u skel-cell-important">
-                                <form method="GET">
-                                    <section>
-                                        <h2 style="text-align: center; margin-top: 80px">以課程名稱搜尋</h2>
-                                        <input type="text" id="searchInput" name="course" placeholder="例: 網際網路服務">
-                                        <button type="submit" id="search">搜尋</button>
-                                    </section>
-                                </form>
-                                <form method="GET">
-                                    <section>
-                                        <br>
-                                        <h2 style="text-align: center; margin-top: 20px">以老師搜尋</h2>
-                                        <input type="text" id="searchInput" name="teacher" placeholder="例: 許政穆">
-                                        <button type="submit" id="search">搜尋</button>
-                                        <p></p>
-                                        <p></p>
-                                    </section>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <section id="main" class="wrapper style1">
-                        <h1 style="text-align: center; font-size: 42px;">查詢結果</h1>
-                        <div class='coursecontainer'>
-                            <div>
-                    <?php
-                    // 搜尋功能
-                    if ($_SERVER["REQUEST_METHOD"] == "GET") {
-                        if (!empty($_GET['teacher'])) {
-                            $teacher = urlencode($_GET['teacher']);
-                            $searchResults = supabaseGet("$supabaseUrl/rest/v1/evaluation?teacher=eq.$teacher", $supabaseKey);
-                        } elseif (!empty($_GET['course'])) {
-                            $course = urlencode($_GET['course']);
-                            $searchResults = supabaseGet("$supabaseUrl/rest/v1/evaluation?course_name=eq.$course", $supabaseKey);
-                        }
-                    
-                        if (isset($searchResults) && is_array($searchResults) && count($searchResults) > 0) {
-                            foreach ($searchResults as $row) {
-                                echo '<div class="evaluation-block" >';
-                                echo "<p class='scroll'><strong>課程類別 :</strong> <span class='pfont'>" . htmlspecialchars($row['small_category']) . "</p>";
-                                echo "<p><strong>課程名稱 :</strong> <span class='pfont'>" . htmlspecialchars($row['course_name']) . "</span></p>";
-                                echo "<p><strong>老師 :</strong> <span class='pfont'>" . htmlspecialchars($row['teacher']) . "</span></p>";
-                    
-                                echo '<div class="full-content" style="display: none;">';
-                                echo "<p><strong>Thoughts:</strong> " . htmlspecialchars($row['thoughts']) . "</p>";
-                    
-                                echo "<p><strong>整體評價:</strong> </p>";
-                                displayStars($row['all_evaluation']);
-                    
-                                echo "<p><strong>給分甜度:</strong> </p>";
-                                displayStars($row['credit_sweet']);
-                    
-                                echo "<p><strong>含金量:</strong> </p>";
-                                displayStars($row['learning']);
-                    
-                                echo "<p><strong>老師78程度:</strong> </p>";
-                                displayStars($row['evilking_level']);
-                    
-                                echo '</div>';
-                                echo '<button class="show-full-content">learn more</button>';
-                                echo '<button class="show-partial-content" style="display: none;">Show less</button>';
-                                echo '</div>';
+
+                            $searchResults = [];
+                            if (!empty($_GET['teacher'])) {
+                                $teacher = urlencode($_GET['teacher']);
+                                $searchResults = supabaseGet("$supabaseUrl/rest/v1/evaluation?teacher=eq.$teacher", $supabaseKey);
+                            } elseif (!empty($_GET['course'])) {
+                                $course = urlencode($_GET['course']);
+                                $searchResults = supabaseGet("$supabaseUrl/rest/v1/evaluation?course_name=eq.$course", $supabaseKey);
                             }
-                        } else {
-                            echo "No results found.";
+
+                            if (is_array($searchResults) && count($searchResults) > 0) {
+                                foreach ($searchResults as $row) {
+                                    echo '<div class="evaluation-block" >';
+                                    echo "<p class='scroll'><strong>課程類別 :</strong> <span class='pfont'>" . htmlspecialchars($row['small_category']) . "</p>";
+                                    echo "<p><strong>課程名稱 :</strong> <span class='pfont'>" . htmlspecialchars($row['course_name']) . "</span></p>";
+                                    echo "<p><strong>老師 :</strong> <span class='pfont'>" . htmlspecialchars($row['teacher']) . "</span></p>";
+                                    echo '<div class="full-content" style="display: none;">';
+                                    echo "<p><strong>Thoughts:</strong> " . htmlspecialchars($row['thoughts']) . "</p>";
+                                    echo "<p><strong>整體評價:</strong> </p>";
+                                    displayStars($row['all_evaluation']);
+                                    echo "<p><strong>給分甜度:</strong> </p>";
+                                    displayStars($row['credit_sweet']);
+                                    echo "<p><strong>含金量:</strong> </p>";
+                                    displayStars($row['learning']);
+                                    echo "<p><strong>老師78程度:</strong> </p>";
+                                    displayStars($row['evilking_level']);
+                                    echo '</div>';
+                                    echo '<button class="show-full-content">learn more</button>';
+                                    echo '<button class="show-partial-content" style="display: none;">Show less</button>';
+                                    echo '</div>';
+                                }
+                            } else {
+                                echo "查無結果。";
+                            }
                         }
-                    }
-                    ?>
+                        ?>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </div>
+    </section>
 
-
-
-    <!-- Footer -->
-    <!--leaf change-->
     <footer id="footer">
         <ul class="icons">
             <li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
@@ -544,96 +414,139 @@ if (!empty($sup_errors)) {
         </ul>
     </footer>
 
-    <!---寫顯示完整內容的按鈕--->
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            var showButtons = document.querySelectorAll(".show-full-content, .show-partial-content");
+        const SUPABASE_URL = "<?php echo $supabaseUrl; ?>";
+        const SUPABASE_KEY = "<?php echo $supabaseKey; ?>";
 
+        function displayStars(value) {
+            let starsHtml = '';
+            for (let i = 0; i < value; i++) {
+                starsHtml += `<img src='images/five_star.png'>`;
+            }
+            return starsHtml;
+        }
+
+        async function fetchAndDisplayData() {
+            try {
+                // Fetch user and evaluation counts
+                const [userResponse, evalResponse] = await Promise.all([
+                    fetch(`${SUPABASE_URL}/rest/v1/users?select=id`, {
+                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+                    }),
+                    fetch(`${SUPABASE_URL}/rest/v1/evaluation?select=*&order=random()&limit=5`, {
+                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+                    })
+                ]);
+
+                const users = await userResponse.json();
+                const evaluations = await evalResponse.json();
+
+                //document.getElementById('userCountDisplay').textContent = `用戶人數: ${users.length}`;
+                //document.getElementById('evalCountDisplay').textContent = `課程評價: ${evaluations.length}`;
+
+                const container = document.getElementById('evaluation-results');
+                container.innerHTML = ''; // Clear the loading message
+
+                if (evaluations.length > 0) {
+                    evaluations.forEach(row => {
+                        const evaluationBlock = document.createElement('div');
+                        evaluationBlock.className = 'evaluation-block';
+
+                        evaluationBlock.innerHTML = `
+                            <p class='scroll'><strong>課程類別 :</strong> <span class='pfont'>${row.small_category}</span></p>
+                            <p><strong>課程名稱 :</strong> <span class='pfont'>${row.course_name}</span></p>
+                            <p><strong>老師 :</strong> <span class='pfont'>${row.teacher}</span></p>
+                            <div class="full-content" style="display: none;">
+                                <p><strong>Thoughts:</strong> ${row.thoughts}</p>
+                                <p><strong>整體評價:</strong> </p>
+                                ${displayStars(row.all_evaluation)}
+                                <p><strong>給分甜度:</strong> </p>
+                                ${displayStars(row.credit_sweet)}
+                                <p><strong>含金量:</strong> </p>
+                                ${displayStars(row.learning)}
+                                <p><strong>老師78程度:</strong> </p>
+                                ${displayStars(row.evilking_level)}
+                            </div>
+                            <button class="show-full-content">learn more</button>
+                            <button class="show-partial-content" style="display: none;">Show less</button>
+                        `;
+                        container.appendChild(evaluationBlock);
+                    });
+                    attachButtonListeners(); // Re-attach listeners for new buttons
+                } else {
+                    container.innerHTML = '<p style="text-align: center;">尚無課程評價。</p>';
+                }
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                const container = document.getElementById('evaluation-results');
+                container.innerHTML = '<p style="text-align: center; color: red;">載入資料失敗。</p>';
+            }
+        }
+
+        function attachButtonListeners() {
+            var showButtons = document.querySelectorAll(".show-full-content, .show-partial-content");
             showButtons.forEach(function (button) {
                 button.addEventListener("click", function () {
                     var evaluationBlock = button.closest(".evaluation-block");
                     var fullContent = evaluationBlock.querySelector(".full-content");
+                    var originalHeight = 260; // Define original height
 
                     if (fullContent && button.classList.contains("show-full-content")) {
-                        // 在顯示完整內容之前儲存原始高度
-                        var originalHeight = evaluationBlock.offsetHeight;
                         fullContent.style.display = "block";
                         button.style.display = "none";
                         evaluationBlock.querySelector(".show-partial-content").style.display = "inline-block";
 
-                        // 計算並調整 div 高度以容納完整內容
-                        var newHeight = originalHeight + fullContent.offsetHeight;
+                        var fullContentHeight = fullContent.offsetHeight;
+                        var newHeight = originalHeight + fullContentHeight;
                         evaluationBlock.style.height = newHeight + "px";
-
-                        // 滑動到該筆資料的 div 最上層，停在頂部一點
-                        smoothScrollTo(evaluationBlock.offsetTop - 40, 300); // offsetTop可以調整上滑距離  調整後面數字以控制往上滑的時間
+                        smoothScrollTo(evaluationBlock.offsetTop - 40, 300);
                     } else if (button.classList.contains("show-partial-content")) {
-                        // 隱藏完整內容並顯示「繼續閱讀」按鈕
                         fullContent.style.display = "none";
                         button.style.display = "none";
                         evaluationBlock.querySelector(".show-full-content").style.display = "inline-block";
-
-                        // 恢復原始 div 高度
-                        evaluationBlock.style.height = "260px"; // 這裡替換為原本的高度，您需要使用原本的高度值
-
-                        // 平滑捲動回到 div 的頂端
+                        evaluationBlock.style.height = originalHeight + "px";
                         smoothScrollTo(evaluationBlock.offsetTop - 40, 300);
                     }
                 });
             });
+        }
 
-            function smoothScrollTo(targetPosition, duration) {
-                var startPosition = window.scrollY || window.pageYOffset,
-                    distance = targetPosition - startPosition,
-                    startTime = null;
+        function smoothScrollTo(targetPosition, duration) {
+            var startPosition = window.scrollY || window.pageYOffset,
+                distance = targetPosition - startPosition,
+                startTime = null;
 
-                function animation(currentTime) {
-                    if (startTime === null) startTime = currentTime;
-                    var timeElapsed = currentTime - startTime;
-                    var progress = Math.min(timeElapsed / duration, 1);
-                    var ease = easeInOutQuad(progress);
+            function animation(currentTime) {
+                if (startTime === null) startTime = currentTime;
+                var timeElapsed = currentTime - startTime;
+                var progress = Math.min(timeElapsed / duration, 1);
+                var ease = easeInOutQuad(progress);
 
-                    window.scrollTo(0, startPosition + distance * ease);
+                window.scrollTo(0, startPosition + distance * ease);
 
-                    if (timeElapsed < duration) {
-                        requestAnimationFrame(animation);
-                    }
+                if (timeElapsed < duration) {
+                    requestAnimationFrame(animation);
                 }
-
-                function easeInOutQuad(t) {
-                    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-                }
-
-                requestAnimationFrame(animation);
             }
-        });
 
-    </script>
-    <!--preloader-->
-    <script>
+            function easeInOutQuad(t) {
+                return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+            }
+            requestAnimationFrame(animation);
+        }
 
+        // Hide preloader and start fetching data after the page is loaded
         window.addEventListener("load", function () {
-            // 延遲 1 秒 (1000 毫秒)
             setTimeout(function () {
-                // 延遲後隱藏 preloader
                 var preloader = document.getElementById("preloader");
-                preloader.style.display = "none";
+                if (preloader) {
+                    preloader.style.display = "none";
+                }
+                fetchAndDisplayData();
             }, 1000);
         });
-
     </script>
-
 </body>
 
-
 </html>
-
-
-
-
-
-
-
-
-
-
